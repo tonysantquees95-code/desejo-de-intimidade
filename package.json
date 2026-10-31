@@ -1,0 +1,23 @@
+{
+  "name": "desejo-de-intimidade-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App para celular (Android e iOS) da loja Desejo de Intimidade",
+  "scripts": {
+    "build": "node preparar-web.js",
+    "android": "npm run build && npx cap sync android && npx cap open android",
+    "ios": "npm run build && npx cap sync ios && npx cap open ios",
+    "icones": "npx capacitor-assets generate"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0"
+  }
+}
