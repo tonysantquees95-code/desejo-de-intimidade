@@ -34,6 +34,7 @@ jobs:
         run: |
           npm run build
           npx cap add android
+          npx capacitor-assets generate --android --iconBackgroundColor '#000000' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#000000' --splashBackgroundColorDark '#000000'
           npx cap sync android
 
       - name: Gerar APK
