@@ -3,8 +3,7 @@
   "appName": "Desejo de Intimidade",
   "webDir": "www",
   "server": {
-    "url": "https://desejo-de-intimidade.floot.app",
-    "cleartext": false,
+    "androidScheme": "https",
     "errorPath": "sem-conexao.html",
     "allowNavigation": [
       "desejo-de-intimidade.floot.app",

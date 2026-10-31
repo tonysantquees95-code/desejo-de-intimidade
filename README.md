@@ -8,10 +8,16 @@ App para celular (Android e iOS) da loja **Desejo de Intimidade**, sex shop com 
 
 ## Como funciona
 
-O app abre a loja online em tela cheia, com ícone próprio e tela de abertura. Tudo que muda no site
-(produtos, preços, páginas) aparece no app na hora, sem precisar publicar uma nova versão nas lojas.
+1. **Tela de abertura** com o logo da loja.
+2. **Confirmação de idade (18+)**, pedida só na primeira vez.
+3. **Tela de boas-vindas** (`web/index.html`) com três caminhos: *Entrar na minha conta*,
+   *Criar conta* ou *Só quero olhar a loja*. Depois do login a pessoa volta direto para a loja.
+4. **Loja online** em tela cheia, dentro do app.
 
-Sem internet, o app mostra uma tela própria (`sem-conexao.html`) com um botão para tentar de novo.
+Tudo que muda no site (produtos, preços, páginas) aparece no app na hora, sem gerar nova versão.
+Só mudanças no próprio app (ícone, nome, tela de boas-vindas) precisam de um APK novo.
+
+Sem internet, o app mostra uma tela própria (`web/sem-conexao.html`) com um botão para tentar de novo.
 
 ## Arquivos
 
@@ -19,10 +25,20 @@ Sem internet, o app mostra uma tela própria (`sem-conexao.html`) com um botão 
 |---|---|
 | `capacitor.config.json` | Nome do app, endereço da loja, cores da tela de abertura e da barra de status |
 | `package.json` | Dependências e comandos |
-| `sem-conexao.html` | Tela mostrada quando o celular está sem internet |
-| `preparar-web.js` | Monta a pasta `www` que o Capacitor exige |
+| `web/index.html` | Tela de boas-vindas e confirmação de idade |
+| `web/sem-conexao.html` | Tela mostrada quando o celular está sem internet |
+| `web/logo.png` | Logo usado na tela de boas-vindas |
+| `assets/` | Imagens do ícone e da tela de abertura |
+| `preparar-web.js` | Copia a pasta `web` para `www`, que o Capacitor exige |
+| `.github/workflows/apk-android.yml` | Gera o APK de teste no GitHub a cada mudança |
 
-## Gerar o app (precisa de um computador)
+## APK de teste
+
+A cada mudança enviada para o GitHub, o APK é gerado sozinho e publicado em
+[Releases → teste-android](../../releases/tag/teste-android). Por ser versão de teste, é preciso
+desinstalar a anterior antes de instalar a nova.
+
+## Gerar o app no computador (opcional)
 
 Requisitos: [Node.js](https://nodejs.org) 20 ou mais recente; Android Studio (Android); Mac com Xcode (iOS).
 
@@ -37,12 +53,8 @@ npm run ios              # abre o projeto no Xcode
 
 ### Ícone e tela de abertura
 
-Crie uma pasta `assets` com:
-
-- `icon.png` — 1024×1024, logo da loja
-- `splash.png` — 2732×2732, logo centralizado no fundo `#1a0d14`
-
-Depois rode `npm run icones`. As imagens são geradas para Android e iOS automaticamente.
+As imagens ficam em `assets/` (logo neon em fundo preto `#000000`). Para trocar, substitua os
+arquivos mantendo os nomes e tamanhos e rode `npm run icones`.
 
 ## Antes de publicar nas lojas
 
@@ -55,7 +67,8 @@ Depois rode `npm run icones`. As imagens são geradas para Android e iOS automat
 
 ## Próximos passos
 
-- [ ] Trazer o código do site do Floot para este repositório
-- [ ] Adicionar ícone e tela de abertura com a identidade visual da loja
-- [ ] Ajustar cores do app para combinar com o site
-- [ ] Gerar e testar a versão Android
+- [x] Ícone, tela de abertura e cores da loja
+- [x] Tela de boas-vindas com login e confirmação de idade
+- [x] APK de teste gerado automaticamente
+- [ ] Versão oficial com assinatura fixa (atualizar sem desinstalar) e aviso de atualização
+- [ ] Botão "Baixe nosso app" no site

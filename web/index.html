@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Desejo de Intimidade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fundo: #000000;
+      --superficie: #0b0709;
+      --texto: #ffffff;
+      --suave: #bdbdbd;
+      --neon: #ff2e97;
+      --neon-texto: #0a0006;
+      --filete: rgba(255, 46, 151, .35);
+      --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+      --sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; background: var(--fundo); color: var(--texto); }
+    body {
+      font-family: var(--sans);
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; flex-direction: column;
+      padding: 24px 24px calc(20px + env(safe-area-inset-bottom));
+    }
+    main {
+      flex: 1; width: 100%; max-width: 400px; margin: 0 auto;
+      display: flex; flex-direction: column; justify-content: center; gap: 28px;
+    }
+
+    .marca { text-align: center; }
+    .marca img {
+      width: 58%; max-width: 230px; height: auto; display: block; margin: 0 auto;
+    }
+
+    .boas-vindas { text-align: center; }
+    .rotulo {
+      font-size: 11px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--neon); margin: 0 0 10px;
+    }
+    h1 {
+      font-family: var(--serif); font-weight: 600; font-size: 30px; line-height: 1.15;
+      margin: 0 0 12px; text-wrap: balance;
+    }
+    h1 em { color: var(--neon); text-shadow: 0 0 14px rgba(255, 46, 151, .55); }
+    .lead { color: var(--suave); font-size: 15px; line-height: 1.55; margin: 0; text-wrap: pretty; }
+
+    .acoes { display: flex; flex-direction: column; gap: 12px; }
+    .botao {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 52px; padding: 0 20px; border-radius: 6px;
+      font: 700 15px/1 var(--sans); letter-spacing: .02em; text-decoration: none;
+      border: 1px solid var(--neon); cursor: pointer; width: 100%;
+      transition: box-shadow .2s, transform .1s;
+    }
+    .botao:active { transform: scale(.98); }
+    .primario { background: var(--neon); color: var(--neon-texto); box-shadow: 0 0 22px rgba(255, 46, 151, .35); }
+    .secundario { background: transparent; color: var(--neon); }
+    .pular {
+      background: none; border: 0; color: var(--texto); font: 600 15px var(--sans);
+      padding: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;
+      text-decoration: none; cursor: pointer;
+    }
+    .pular span { border-bottom: 1px solid var(--filete); padding-bottom: 2px; }
+
+    .selos {
+      list-style: none; margin: 0; padding: 16px 0 0; border-top: 1px solid var(--filete);
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;
+    }
+    .selos li { font-size: 12px; line-height: 1.35; color: var(--suave); }
+    .selos svg { display: block; margin: 0 auto 6px; color: var(--neon); }
+    .selos strong { display: block; color: var(--texto); font-weight: 700; }
+
+    footer { text-align: center; font-size: 12px; color: #8a8a8a; padding-top: 20px; }
+
+    .aviso {
+      display: none; text-align: center; font-size: 14px; color: var(--texto);
+      border: 1px solid var(--filete); border-radius: 6px; padding: 12px; background: var(--superficie);
+    }
+    .aviso.visivel { display: block; }
+
+    /* Confirmação de idade */
+    .idade {
+      position: fixed; inset: 0; z-index: 10; background: rgba(0, 0, 0, .94);
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .idade.aberta { display: flex; }
+    .idade-caixa {
+      width: 100%; max-width: 360px; text-align: center; background: var(--superficie);
+      border: 1px solid var(--filete); border-radius: 8px; padding: 28px 22px;
+      box-shadow: 0 0 40px rgba(255, 46, 151, .15);
+    }
+    .idade-selo {
+      width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%;
+      border: 1px solid var(--neon); color: var(--neon); display: grid; place-items: center;
+      font: 600 22px var(--serif); text-shadow: 0 0 12px rgba(255, 46, 151, .6);
+      box-shadow: 0 0 18px rgba(255, 46, 151, .25) inset;
+    }
+    .idade h2 { font: 600 22px/1.2 var(--serif); margin: 0 0 10px; }
+    .idade p { color: var(--suave); font-size: 14px; line-height: 1.5; margin: 0 0 22px; }
+    .idade .acoes { gap: 10px; }
+    .idade-recusa { display: none; color: var(--suave); font-size: 14px; margin-top: 16px; }
+
+    @media (min-height: 760px) { main { gap: 34px; } h1 { font-size: 32px; } }
+    @media (max-height: 700px) {
+      body { padding-top: 16px; }
+      main { gap: 18px; }
+      .marca img { width: 38%; }
+      h1 { font-size: 25px; margin-bottom: 8px; }
+      .lead { font-size: 14px; }
+      .botao { min-height: 48px; }
+      .acoes { gap: 10px; }
+      .pular { padding: 6px; }
+      footer { padding-top: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .botao { transition: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="marca">
+      <img src="logo.png" alt="Desejo de Intimidade">
+    </div>
+
+    <section class="boas-vindas">
+      <p class="rotulo" id="rotulo">Bem-vindo(a)</p>
+      <h1>Seu momento de <em>desejo</em> começa aqui</h1>
+      <p class="lead">Entre na sua conta para comprar com rapidez e acompanhar seus pedidos, ou explore a loja à vontade.</p>
+    </section>
+
+    <div class="acoes">
+      <a class="botao primario" href="#" data-ir="/login?next=%2F">Entrar na minha conta</a>
+      <a class="botao secundario" href="#" data-ir="/cadastro?next=%2F">Criar conta</a>
+      <a class="pular" href="#" data-ir="/"><span>Só quero olhar a loja</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <p class="aviso" id="aviso" role="status">Você está sem internet. Confira a conexão e tente de novo.</p>
+    </div>
+
+    <ul class="selos">
+      <li>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>
+        <strong>Entrega discreta</strong>Caixa lacrada, sem logo
+      </li>
+      <li>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <strong>5% off no Pix</strong>Fora das promoções
+      </li>
+      <li>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        <strong>Até 3x</strong>no cartão de crédito
+      </li>
+    </ul>
+  </main>
+
+  <footer>Venda exclusiva para maiores de 18 anos.</footer>
+
+  <div class="idade" id="idade" role="dialog" aria-modal="true" aria-labelledby="idade-titulo">
+    <div class="idade-caixa">
+      <div class="idade-selo">18+</div>
+      <h2 id="idade-titulo">Conteúdo para adultos</h2>
+      <p>Este app tem produtos destinados a maiores de 18 anos. Para continuar, confirme sua idade.</p>
+      <div class="acoes">
+        <button class="botao primario" type="button" id="idade-sim">Tenho 18 anos ou mais</button>
+        <button class="botao secundario" type="button" id="idade-nao">Sou menor de 18</button>
+      </div>
+      <p class="idade-recusa" id="idade-recusa">Obrigado pela sinceridade. Este app é só para maiores de 18 anos.</p>
+    </div>
+  </div>
+
+  <script>
+    var LOJA = "https://desejo-de-intimidade.floot.app";
+
+    function ler(chave) { try { return localStorage.getItem(chave); } catch (e) { return null; } }
+    function gravar(chave, valor) { try { localStorage.setItem(chave, valor); } catch (e) {} }
+
+    // Saudação para quem já abriu o app antes
+    if (ler("di_visitou")) document.getElementById("rotulo").textContent = "Bem-vindo(a) de volta";
+    gravar("di_visitou", "1");
+
+    // Botões: abrem a loja dentro do app, ou avisam se estiver sem internet
+    var aviso = document.getElementById("aviso");
+    document.querySelectorAll("[data-ir]").forEach(function (el) {
+      el.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        if (navigator.onLine === false) { aviso.classList.add("visivel"); return; }
+        aviso.classList.remove("visivel");
+        window.location.href = LOJA + el.getAttribute("data-ir");
+      });
+    });
+
+    // Confirmação de idade: pedida uma vez e lembrada depois
+    var idade = document.getElementById("idade");
+    if (ler("di_maior18") !== "sim") idade.classList.add("aberta");
+    document.getElementById("idade-sim").addEventListener("click", function () {
+      gravar("di_maior18", "sim");
+      idade.classList.remove("aberta");
+    });
+    document.getElementById("idade-nao").addEventListener("click", function () {
+      document.getElementById("idade-recusa").style.display = "block";
+      var app = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+      if (app && app.exitApp) setTimeout(function () { app.exitApp(); }, 1800);
+    });
+  </script>
+</body>
+</html>
