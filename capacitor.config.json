@@ -19,11 +19,13 @@
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#1a0d14"
+      "backgroundColor": "#1a0d14",
+      "overlaysWebView": false
     }
   },
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "adjustMarginsForEdgeToEdge": "force"
   },
   "ios": {
     "contentInset": "always"
