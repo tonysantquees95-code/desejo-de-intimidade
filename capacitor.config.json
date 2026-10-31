@@ -1,0 +1,31 @@
+{
+  "appId": "com.desejodeintimidade.app",
+  "appName": "Desejo de Intimidade",
+  "webDir": "www",
+  "server": {
+    "url": "https://desejo-de-intimidade.floot.app",
+    "cleartext": false,
+    "errorPath": "sem-conexao.html",
+    "allowNavigation": [
+      "desejo-de-intimidade.floot.app",
+      "*.floot.app"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#1a0d14",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#1a0d14"
+    }
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "always"
+  }
+}
