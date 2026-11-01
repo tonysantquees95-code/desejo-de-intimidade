@@ -14,6 +14,18 @@ App para celular (Android e iOS) da loja **Desejo de Intimidade**, sex shop com 
    *Criar conta* ou *Só quero olhar a loja*. Depois do login a pessoa volta direto para a loja.
 4. **Loja online** em tela cheia, dentro do app.
 
+### Privacidade (botão no canto da tela de boas-vindas)
+
+- **Ícone discreto:** troca o ícone e o nome na tela inicial por "DI", em fundo grafite.
+- **Trava com digital:** pede digital ou senha do celular ao abrir o app (e depois de 2 minutos fora
+  dele). Com a trava ligada, o app também some de prints e da lista de apps abertos.
+
+### Aviso de atualização
+
+A tela de boas-vindas consulta `https://desejo-de-intimidade.floot.app/app-versao.json`. Se a
+versão publicada ali for maior que a instalada, aparece o botão *Atualizar agora*. Cada build gera
+um `app-versao.json` modelo junto com o APK, na página de Releases.
+
 Tudo que muda no site (produtos, preços, páginas) aparece no app na hora, sem gerar nova versão.
 Só mudanças no próprio app (ícone, nome, tela de boas-vindas) precisam de um APK novo.
 
@@ -32,11 +44,21 @@ Sem internet, o app mostra uma tela própria (`web/sem-conexao.html`) com um bot
 | `preparar-web.js` | Copia a pasta `web` para `www`, que o Capacitor exige |
 | `.github/workflows/apk-android.yml` | Gera o APK de teste no GitHub a cada mudança |
 
-## APK de teste
+## APK
 
 A cada mudança enviada para o GitHub, o APK é gerado sozinho e publicado em
-[Releases → teste-android](../../releases/tag/teste-android). Por ser versão de teste, é preciso
-desinstalar a anterior antes de instalar a nova.
+[Releases → teste-android](../../releases/tag/teste-android).
+
+- **Versão oficial** (com o segredo `ASSINATURA_SENHA` cadastrado em *Settings → Secrets and
+  variables → Actions*): assinada sempre com a mesma chave, então a atualização instala por cima,
+  sem perder login nem carrinho.
+- **Versão de teste** (sem o segredo): é preciso desinstalar a anterior antes de instalar.
+
+A chave de assinatura fica criptografada em `nativo/assinatura.p12.enc`. **Guarde a senha em lugar
+seguro:** sem ela não dá para gerar atualizações que instalem por cima das versões já distribuídas.
+
+Código nativo do Android (trava, ícone discreto, versão) fica em `nativo/` e é aplicado por
+`nativo/aplicar.js` a cada build.
 
 ## Gerar o app no computador (opcional)
 
@@ -70,5 +92,9 @@ arquivos mantendo os nomes e tamanhos e rode `npm run icones`.
 - [x] Ícone, tela de abertura e cores da loja
 - [x] Tela de boas-vindas com login e confirmação de idade
 - [x] APK de teste gerado automaticamente
-- [ ] Versão oficial com assinatura fixa (atualizar sem desinstalar) e aviso de atualização
-- [ ] Botão "Baixe nosso app" no site
+- [x] Versão oficial com assinatura fixa e aviso de atualização
+- [x] Ícone discreto e trava com digital
+- [ ] Publicar APK e `app-versao.json` no site, com botão "Baixe nosso app"
+- [ ] Notificações (pedido enviado, promoções), que precisam de conta no Firebase
+- [ ] Links da loja abrindo direto no app
+- [ ] Botão no site para salvar como app no iPhone

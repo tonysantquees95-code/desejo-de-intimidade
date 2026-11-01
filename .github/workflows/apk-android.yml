@@ -15,6 +15,8 @@ concurrency:
 jobs:
   apk:
     runs-on: ubuntu-latest
+    env:
+      VERSAO_CODIGO: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,25 +38,51 @@ jobs:
           npx cap add android
           npx capacitor-assets generate --android --iconBackgroundColor '#000000' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#000000' --splashBackgroundColorDark '#000000'
           npx cap sync android
+          node nativo/aplicar.js
 
+      # Com o segredo ASSINATURA_SENHA cadastrado, gera a versão oficial (atualiza por cima, sem desinstalar).
+      # Sem ele, gera a versão de teste, como antes.
       - name: Gerar APK
         working-directory: android
+        env:
+          SENHA: ${{ secrets.ASSINATURA_SENHA }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          if [ -n "$SENHA" ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
+              -in ../nativo/assinatura.p12.enc -out "$RUNNER_TEMP/assinatura.p12" -pass env:SENHA
+            ./gradlew assembleRelease --no-daemon \
+              -Pandroid.injected.signing.store.file="$RUNNER_TEMP/assinatura.p12" \
+              -Pandroid.injected.signing.store.password="$SENHA" \
+              -Pandroid.injected.signing.key.alias=desejo \
+              -Pandroid.injected.signing.key.password="$SENHA"
+            cp app/build/outputs/apk/release/app-release.apk ../desejo-de-intimidade.apk
+            rm -f "$RUNNER_TEMP/assinatura.p12"
+            echo "TIPO=oficial" >> "$GITHUB_ENV"
+          else
+            ./gradlew assembleDebug --no-daemon
+            cp app/build/outputs/apk/debug/app-debug.apk ../desejo-de-intimidade.apk
+            echo "TIPO=teste" >> "$GITHUB_ENV"
+          fi
 
       - name: Publicar APK para download
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk desejo-de-intimidade-teste.apk
+          printf '{\n  "versao": %s,\n  "nome": "1.0.%s",\n  "url": "COLOQUE_AQUI_O_LINK_DO_APK",\n  "novidades": "Melhorias e correções."\n}\n' \
+            "$VERSAO_CODIGO" "$VERSAO_CODIGO" > app-versao.json
+          if [ "$TIPO" = "oficial" ]; then
+            NOTA="Versão oficial: instala por cima da anterior, sem perder login nem carrinho."
+          else
+            NOTA="Versão de TESTE: desinstale a anterior antes de instalar. Cadastre o segredo ASSINATURA_SENHA para gerar a versão oficial."
+          fi
           gh release delete teste-android --yes --cleanup-tag || true
-          gh release create teste-android desejo-de-intimidade-teste.apk \
+          gh release create teste-android desejo-de-intimidade.apk app-versao.json \
             --prerelease \
-            --title "APK de teste (Android)" \
-            --notes "Versão de teste gerada em $(date -u +'%d/%m/%Y %H:%M') UTC. Baixe o arquivo .apk abaixo e abra no celular Android para instalar."
+            --title "App Android 1.0.${VERSAO_CODIGO} (${TIPO})" \
+            --notes "Gerado em $(date -u +'%d/%m/%Y %H:%M') UTC. ${NOTA} Baixe o arquivo .apk abaixo e abra no celular Android para instalar."
 
       - uses: actions/upload-artifact@v4
         with:
-          name: apk-teste
-          path: desejo-de-intimidade-teste.apk
+          name: apk-${{ env.TIPO }}
+          path: desejo-de-intimidade.apk

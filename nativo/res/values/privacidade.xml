@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="discreto_fundo">#2A2A2E</color>
+    <string name="nome_discreto">DI</string>
+</resources>

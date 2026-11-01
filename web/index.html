@@ -105,6 +105,64 @@
     .idade .acoes { gap: 10px; }
     .idade-recusa { display: none; color: var(--suave); font-size: 14px; margin-top: 16px; }
 
+    /* Botão de privacidade (canto superior) */
+    [hidden] { display: none !important; }
+    .topo { display: flex; justify-content: flex-end; width: 100%; max-width: 400px; margin: 0 auto; }
+    .topo:has(.icone-botao.visivel) { margin-bottom: 8px; }
+    .icone-botao {
+      display: none; align-items: center; gap: 6px; background: transparent;
+      border: 1px solid var(--filete); color: var(--texto); border-radius: 999px;
+      padding: 8px 12px; font: 600 12px var(--sans); letter-spacing: .04em; cursor: pointer;
+    }
+    .icone-botao.visivel { display: inline-flex; }
+    .icone-botao svg { color: var(--neon); }
+
+    /* Aviso de atualização */
+    .atualizacao {
+      display: none; border: 1px solid var(--neon); border-radius: 8px; background: var(--superficie);
+      padding: 14px; box-shadow: 0 0 22px rgba(255, 46, 151, .18);
+    }
+    .atualizacao.visivel { display: block; }
+    .atualizacao strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .atualizacao p { margin: 0 0 12px; color: var(--suave); font-size: 13px; line-height: 1.45; }
+    .atualizacao .botao { min-height: 44px; }
+
+    /* Painel de privacidade */
+    .painel {
+      position: fixed; inset: 0; z-index: 9; background: rgba(0, 0, 0, .8);
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .painel.aberto { display: flex; }
+    .painel-caixa {
+      width: 100%; max-width: 480px; background: var(--superficie);
+      border: 1px solid var(--filete); border-bottom: 0; border-radius: 14px 14px 0 0;
+      padding: 22px 20px calc(20px + env(safe-area-inset-bottom));
+    }
+    .painel h2 { font: 600 22px/1.2 var(--serif); margin: 0 0 4px; }
+    .painel .sub { color: var(--suave); font-size: 13px; margin: 0 0 14px; }
+    .opcao {
+      display: flex; gap: 14px; align-items: flex-start; padding: 14px 0;
+      border-top: 1px solid rgba(255, 46, 151, .18);
+    }
+    .opcao-texto { flex: 1; }
+    .opcao-texto strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .opcao-texto span { display: block; color: var(--suave); font-size: 13px; line-height: 1.45; }
+    .opcao-texto .nota { color: var(--neon); margin-top: 6px; }
+    .chave {
+      flex: none; width: 50px; height: 30px; border-radius: 999px; border: 1px solid var(--filete);
+      background: #1d1d20; position: relative; cursor: pointer; padding: 0; margin-top: 2px;
+      transition: background .2s, border-color .2s;
+    }
+    .chave::after {
+      content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px;
+      border-radius: 50%; background: #8a8a8a; transition: transform .2s, background .2s;
+    }
+    .chave[aria-checked="true"] { background: var(--neon); border-color: var(--neon); }
+    .chave[aria-checked="true"]::after { transform: translateX(20px); background: var(--neon-texto); }
+    .chave:disabled { opacity: .4; cursor: not-allowed; }
+    .painel .botao { margin-top: 10px; }
+    .versao { display: block; margin-top: 4px; color: #5c5c5c; }
+
     @media (min-height: 760px) { main { gap: 34px; } h1 { font-size: 32px; } }
     @media (max-height: 700px) {
       body { padding-top: 16px; }
@@ -121,7 +179,20 @@
   </style>
 </head>
 <body>
+  <div class="topo">
+    <button class="icone-botao" type="button" id="abrir-privacidade" aria-haspopup="dialog">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      Privacidade
+    </button>
+  </div>
+
   <main>
+    <div class="atualizacao" id="atualizacao" role="status">
+      <strong id="atualizacao-titulo">Nova versão do app disponível</strong>
+      <p id="atualizacao-texto">Atualize para ter as últimas melhorias. Seu login e carrinho continuam salvos.</p>
+      <button class="botao primario" type="button" id="atualizar">Atualizar agora</button>
+    </div>
+
     <div class="marca">
       <img src="logo.png" alt="Desejo de Intimidade">
     </div>
@@ -157,7 +228,34 @@
     </ul>
   </main>
 
-  <footer>Venda exclusiva para maiores de 18 anos.</footer>
+  <footer>Venda exclusiva para maiores de 18 anos.<span class="versao" id="versao"></span></footer>
+
+  <div class="painel" id="painel" role="dialog" aria-modal="true" aria-labelledby="painel-titulo">
+    <div class="painel-caixa">
+      <h2 id="painel-titulo">Privacidade</h2>
+      <p class="sub">Escolha como o app aparece no seu celular.</p>
+
+      <div class="opcao">
+        <div class="opcao-texto">
+          <strong id="rotulo-icone">Ícone discreto</strong>
+          <span>Na tela inicial, o app aparece só como “DI”, com um ícone neutro, sem nada que indique a loja.</span>
+          <span class="nota" id="nota-icone" hidden>Pronto! O ícone muda em alguns segundos. Em alguns celulares o app fecha sozinho ao trocar: é só abrir de novo pelo novo ícone.</span>
+        </div>
+        <button class="chave" type="button" role="switch" aria-checked="false" aria-labelledby="rotulo-icone" id="chave-icone"></button>
+      </div>
+
+      <div class="opcao">
+        <div class="opcao-texto">
+          <strong id="rotulo-trava">Trava com digital</strong>
+          <span>Pede sua digital ou a senha do celular ao abrir o app. Também esconde o app em prints e na lista de apps abertos.</span>
+          <span class="nota" id="nota-trava" hidden>Para usar, cadastre uma digital ou senha de bloqueio nas configurações do celular.</span>
+        </div>
+        <button class="chave" type="button" role="switch" aria-checked="false" aria-labelledby="rotulo-trava" id="chave-trava"></button>
+      </div>
+
+      <button class="botao secundario" type="button" id="fechar-privacidade">Pronto</button>
+    </div>
+  </div>
 
   <div class="idade" id="idade" role="dialog" aria-modal="true" aria-labelledby="idade-titulo">
     <div class="idade-caixa">
@@ -202,9 +300,81 @@
     });
     document.getElementById("idade-nao").addEventListener("click", function () {
       document.getElementById("idade-recusa").style.display = "block";
-      var app = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
-      if (app && app.exitApp) setTimeout(function () { app.exitApp(); }, 1800);
+      if (temPlugin("App")) setTimeout(function () { P.App.exitApp(); }, 1800);
     });
+
+    // ---- Recursos que só existem dentro do app (Capacitor) ----
+    var P = (window.Capacitor && window.Capacitor.Plugins) || {};
+    function temPlugin(nome) {
+      if (window.Capacitor && typeof window.Capacitor.isPluginAvailable === "function") {
+        return window.Capacitor.isPluginAvailable(nome);
+      }
+      return !!P[nome];
+    }
+
+    // Privacidade: ícone discreto e trava com digital
+    var painel = document.getElementById("painel");
+    var chaveIcone = document.getElementById("chave-icone");
+    var chaveTrava = document.getElementById("chave-trava");
+
+    function mostrarEstado(e) {
+      chaveIcone.setAttribute("aria-checked", e.iconeDiscreto ? "true" : "false");
+      chaveTrava.setAttribute("aria-checked", e.trava ? "true" : "false");
+      chaveTrava.disabled = !e.travaDisponivel && !e.trava;
+      document.getElementById("nota-trava").hidden = e.travaDisponivel || e.trava;
+    }
+
+    if (temPlugin("Privacidade")) {
+      document.getElementById("abrir-privacidade").classList.add("visivel");
+      document.getElementById("abrir-privacidade").addEventListener("click", function () {
+        P.Privacidade.estado().then(mostrarEstado).catch(function () {});
+        painel.classList.add("aberto");
+      });
+      document.getElementById("fechar-privacidade").addEventListener("click", function () {
+        painel.classList.remove("aberto");
+      });
+      painel.addEventListener("click", function (ev) {
+        if (ev.target === painel) painel.classList.remove("aberto");
+      });
+      chaveIcone.addEventListener("click", function () {
+        var novo = chaveIcone.getAttribute("aria-checked") !== "true";
+        P.Privacidade.definirIconeDiscreto({ discreto: novo }).then(function (e) {
+          mostrarEstado(e);
+          document.getElementById("nota-icone").hidden = false;
+        }).catch(function () {});
+      });
+      chaveTrava.addEventListener("click", function () {
+        var novo = chaveTrava.getAttribute("aria-checked") !== "true";
+        P.Privacidade.definirTrava({ ativa: novo }).then(mostrarEstado).catch(function () {
+          document.getElementById("nota-trava").hidden = false;
+        });
+      });
+    }
+
+    // Versão do app e aviso de atualização.
+    // A loja publica em /app-versao.json: { "versao": 12, "nome": "1.0.12", "url": "...apk", "novidades": "..." }
+    var linkAtualizacao = null;
+    document.getElementById("atualizar").addEventListener("click", function () {
+      if (!linkAtualizacao) return;
+      if (temPlugin("Browser")) P.Browser.open({ url: linkAtualizacao });
+      else window.open(linkAtualizacao, "_blank");
+    });
+
+    if (temPlugin("App")) {
+      P.App.getInfo().then(function (info) {
+        document.getElementById("versao").textContent = "Versão " + info.version;
+        if (!temPlugin("CapacitorHttp") || navigator.onLine === false) return;
+        return P.CapacitorHttp.get({ url: LOJA + "/app-versao.json?t=" + Date.now() }).then(function (r) {
+          var d = r && r.data;
+          if (typeof d === "string") d = JSON.parse(d);
+          if (!d || !d.url || !(Number(d.versao) > Number(info.build))) return;
+          linkAtualizacao = d.url;
+          if (d.nome) document.getElementById("atualizacao-titulo").textContent = "Nova versão " + d.nome + " disponível";
+          if (d.novidades) document.getElementById("atualizacao-texto").textContent = d.novidades;
+          document.getElementById("atualizacao").classList.add("visivel");
+        });
+      }).catch(function () { /* sem aviso se a loja ainda não publicou a versão */ });
+    }
   </script>
 </body>
 </html>
