@@ -2,14 +2,14 @@ name: Gerar APK Android
 
 on:
   push:
-    branches: [main]
+    branches: [teste-assinatura]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: apk-android
+  group: teste-assinatura
   cancel-in-progress: true
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
       - name: Gerar APK
         working-directory: android
         env:
-          SENHA: ${{ secrets.ASSINATURA_SENHA }}
+          SENHA: descartavel-123456
         run: |
           chmod +x gradlew
           if [ -n "$SENHA" ]; then
@@ -65,23 +65,11 @@ jobs:
             echo "TIPO=teste" >> "$GITHUB_ENV"
           fi
 
-      - name: Publicar APK para download
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Conferir assinatura
         run: |
-          printf '{\n  "versao": %s,\n  "nome": "1.0.%s",\n  "url": "COLOQUE_AQUI_O_LINK_DO_APK",\n  "novidades": "Melhorias e correções."\n}\n' \
-            "$VERSAO_CODIGO" "$VERSAO_CODIGO" > app-versao.json
-          if [ "$TIPO" = "oficial" ]; then
-            NOTA="Versão oficial: instala por cima da anterior, sem perder login nem carrinho."
-          else
-            NOTA="Versão de TESTE: desinstale a anterior antes de instalar. Cadastre o segredo ASSINATURA_SENHA para gerar a versão oficial."
-          fi
-          gh release delete teste-android --yes --cleanup-tag || true
-          gh release create teste-android desejo-de-intimidade.apk app-versao.json \
-            --prerelease \
-            --title "App Android 1.0.${VERSAO_CODIGO} (${TIPO})" \
-            --notes "Gerado em $(date -u +'%d/%m/%Y %H:%M') UTC. ${NOTA} Baixe o arquivo .apk abaixo e abra no celular Android para instalar."
-
+          test "$TIPO" = "oficial"
+          "$ANDROID_HOME"/build-tools/*/apksigner verify --print-certs desejo-de-intimidade.apk | head -3
+          "$ANDROID_HOME"/build-tools/*/aapt dump badging desejo-de-intimidade.apk | grep -E "package:|launchable" || true
       - uses: actions/upload-artifact@v4
         with:
           name: apk-${{ env.TIPO }}
