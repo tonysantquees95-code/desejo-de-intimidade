@@ -58,6 +58,20 @@ trocar(
   "a MainActivity",
 );
 
+// Notificações: ícone pequeno (sino neutro), cor e canal padrão do Firebase
+trocar(
+  manifest,
+  /<application([^>]*)>/,
+  `<application$1>
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_notificacao" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/notificacao_cor" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="@string/canal_loja" />`,
+  "a tag application",
+);
+
+// Firebase (notificações): o Capacitor aplica o plugin google-services quando este arquivo existe
+fs.copyFileSync(path.join(__dirname, "google-services.json"), path.join(app, "google-services.json"));
+
 // 4. build.gradle: biometria e versão
 const gradle = path.join(app, "build.gradle");
 trocar(

@@ -187,6 +187,11 @@
       border-radius: 999px; padding: 6px 10px; font: 600 12px var(--sans); cursor: pointer;
     }
     .painel .pular { width: 100%; margin-top: 4px; }
+    .push-icone {
+      width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 12px;
+      border: 1px solid var(--neon); color: var(--neon); box-shadow: 0 0 18px rgba(255, 46, 151, .25);
+    }
+    #painel-push .botao { margin-top: 6px; }
     .painel .fechar { color: var(--suave); }
 
     @media (min-height: 760px) { main { gap: 34px; } h1 { font-size: 32px; } }
@@ -287,6 +292,15 @@
         <button class="chave" type="button" role="switch" aria-checked="false" aria-labelledby="rotulo-trava" id="chave-trava"></button>
       </div>
 
+      <div class="opcao" id="opcao-push" hidden>
+        <div class="opcao-texto">
+          <strong id="rotulo-push">Avisos do pedido e promoções</strong>
+          <span>Avisamos quando seu pedido for enviado e quando tiver promoção. Na tela bloqueada, o conteúdo do aviso fica escondido.</span>
+          <span class="nota" id="nota-push" hidden>Para ativar, permita as notificações do app nas configurações do celular.</span>
+        </div>
+        <button class="chave" type="button" role="switch" aria-checked="false" aria-labelledby="rotulo-push" id="chave-push"></button>
+      </div>
+
       <button class="botao secundario" type="button" id="fechar-privacidade">Pronto</button>
     </div>
   </div>
@@ -302,6 +316,18 @@
       </button>
       <button class="pular" type="button" id="sem-conta"><span>Entrar sem conta, só para olhar</span></button>
       <button class="pular fechar" type="button" id="fechar-contas"><span>Fechar</span></button>
+    </div>
+  </div>
+
+  <div class="painel" id="painel-push" role="dialog" aria-modal="true" aria-labelledby="push-titulo">
+    <div class="painel-caixa">
+      <div class="push-icone" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      </div>
+      <h2 id="push-titulo">Quer receber avisos?</h2>
+      <p class="sub">Avisamos quando seu pedido for enviado e quando tiver promoção. Os textos são discretos, e na tela bloqueada o conteúdo fica escondido.</p>
+      <button class="botao primario" type="button" id="push-sim">Quero receber</button>
+      <button class="pular" type="button" id="push-nao"><span>Agora não</span></button>
     </div>
   </div>
 
@@ -325,7 +351,8 @@
     function gravar(chave, valor) { try { localStorage.setItem(chave, valor); } catch (e) {} }
 
     // Saudação para quem já abriu o app antes
-    if (ler("di_visitou")) document.getElementById("rotulo").textContent = "Bem-vindo(a) de volta";
+    var visitouAntes = !!ler("di_visitou");
+    if (visitouAntes) document.getElementById("rotulo").textContent = "Bem-vindo(a) de volta";
     gravar("di_visitou", "1");
 
     // Botões: abrem a loja dentro do app, ou avisam se estiver sem internet
@@ -475,7 +502,7 @@
       document.getElementById("acoes-visitante").hidden = temContas;
       if (!temContas) {
         contaAtual = null;
-        document.getElementById("rotulo").textContent = ler("di_visitou") ? "Bem-vindo(a) de volta" : "Bem-vindo(a)";
+        document.getElementById("rotulo").textContent = visitouAntes ? "Bem-vindo(a) de volta" : "Bem-vindo(a)";
         var t = document.getElementById("titulo");
         t.textContent = "Seu momento de ";
         var em = document.createElement("em"); em.textContent = "desejo"; t.appendChild(em);
@@ -520,6 +547,94 @@
         if (!online()) return;
         P.Contas.semSessao().then(function () { ir("/"); });
       });
+    }
+
+    // ---- Notificações (pedido enviado, promoções) ----
+    var painelPush = document.getElementById("painel-push");
+    var chavePush = document.getElementById("chave-push");
+    var temPush = temPlugin("PushNotifications") && temPlugin("Contas");
+
+    function marcarPush(ligado) {
+      chavePush.setAttribute("aria-checked", ligado ? "true" : "false");
+    }
+
+    function ativarPush() {
+      return P.PushNotifications.requestPermissions().then(function (r) {
+        if (r.receive !== "granted") throw new Error("negado");
+        return P.PushNotifications.createChannel({
+          id: "loja",
+          name: "Pedidos e promoções",
+          description: "Avisos sobre seus pedidos e promoções da loja",
+          importance: 4,
+          visibility: 0, // tela bloqueada: mostra que chegou aviso, mas esconde o texto
+        }).catch(function () {}).then(function () {
+          gravar("di_push", "sim");
+          return P.PushNotifications.register();
+        });
+      });
+    }
+
+    function desativarPush() {
+      gravar("di_push", "nao");
+      P.Contas.salvarTokenPush({ token: "" }).catch(function () {});
+      return P.PushNotifications.unregister().catch(function () {});
+    }
+
+    function talvezConvidarPush() {
+      if (!temPush || ler("di_push")) return;
+      P.PushNotifications.checkPermissions().then(function (r) {
+        if (r.receive === "denied") { gravar("di_push", "nao"); return; }
+        setTimeout(function () { painelPush.classList.add("aberto"); }, 600);
+      }).catch(function () {});
+    }
+
+    if (temPush) {
+      // Os ouvintes vêm antes de tudo, para não perder o toque numa notificação que abriu o app.
+      P.PushNotifications.addListener("registration", function (t) {
+        P.Contas.salvarTokenPush({ token: t.value }).catch(function () {});
+      });
+      P.PushNotifications.addListener("pushNotificationActionPerformed", function (acao) {
+        var dados = (acao && acao.notification && acao.notification.data) || {};
+        var destino = typeof dados.url === "string" ? dados.url : "/";
+        if (destino.charAt(0) !== "/") destino = "/";
+        ir(destino);
+      });
+
+      // Quem já ativou: renova o registro a cada abertura (o código do celular pode mudar).
+      if (ler("di_push") === "sim") {
+        P.PushNotifications.checkPermissions().then(function (r) {
+          if (r.receive === "granted") P.PushNotifications.register();
+        }).catch(function () {});
+      }
+
+      document.getElementById("push-sim").addEventListener("click", function () {
+        painelPush.classList.remove("aberto");
+        ativarPush().then(function () { marcarPush(true); }).catch(function () { gravar("di_push", "nao"); });
+      });
+      document.getElementById("push-nao").addEventListener("click", function () {
+        gravar("di_push", "nao");
+        painelPush.classList.remove("aberto");
+      });
+
+      document.getElementById("opcao-push").hidden = false;
+      marcarPush(ler("di_push") === "sim");
+      document.getElementById("abrir-privacidade").addEventListener("click", function () {
+        marcarPush(ler("di_push") === "sim");
+      });
+      chavePush.addEventListener("click", function () {
+        var ligar = chavePush.getAttribute("aria-checked") !== "true";
+        if (!ligar) { desativarPush(); marcarPush(false); return; }
+        ativarPush().then(function () {
+          marcarPush(true);
+          document.getElementById("nota-push").hidden = true;
+        }).catch(function () {
+          marcarPush(false);
+          document.getElementById("nota-push").hidden = false;
+        });
+      });
+
+      document.getElementById("idade-sim").addEventListener("click", talvezConvidarPush);
+      if (ler("di_maior18") === "sim") talvezConvidarPush();
     }
 
     // Versão do app e aviso de atualização.

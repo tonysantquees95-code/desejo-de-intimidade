@@ -31,6 +31,14 @@ o app (`nativo/java/ContasPonte.java`); `ContasPlugin.java` troca a sessão do n
 - **Trava com digital:** pede digital ou senha do celular ao abrir o app (e depois de 2 minutos fora
   dele). Com a trava ligada, o app também some de prints e da lista de apps abertos.
 
+### Notificações
+
+Depois da confirmação de idade, o app convida a pessoa a ativar os avisos (dá para mudar depois em
+**Privacidade**). O celular é registrado no Firebase (`nativo/google-services.json`) e o código dele
+é enviado à loja por `web/contas-ponte.js` (`POST /_api/app/push_token`), junto da conta logada.
+Os avisos usam o canal "Pedidos e promoções", com o conteúdo escondido na tela bloqueada, e um
+sino neutro como ícone. Ao tocar no aviso, o app abre a página indicada em `data.url`.
+
 ### Aviso de atualização
 
 A tela de boas-vindas consulta `https://desejo-de-intimidade.floot.app/app-versao.json`. Se a
@@ -106,6 +114,7 @@ arquivos mantendo os nomes e tamanhos e rode `npm run icones`.
 - [x] Versão oficial com assinatura fixa e aviso de atualização
 - [x] Ícone discreto e trava com digital
 - [ ] Publicar APK e `app-versao.json` no site, com botão "Baixe nosso app"
-- [ ] Notificações (pedido enviado, promoções), que precisam de conta no Firebase
+- [x] Notificações no app (registro do celular)
+- [ ] Envio das notificações pelo site (pedido enviado, promoções)
 - [ ] Links da loja abrindo direto no app
 - [ ] Botão no site para salvar como app no iPhone

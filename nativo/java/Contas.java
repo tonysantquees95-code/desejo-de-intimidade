@@ -58,6 +58,15 @@ final class Contas {
         else prefs(ctx).edit().putString(PENDENTE, id).apply();
     }
 
+    /** Código deste celular para receber notificações (Firebase). Vazio se não ativou. */
+    static String tokenPush(Context ctx) {
+        return prefs(ctx).getString("tokenPush", "");
+    }
+
+    static void definirTokenPush(Context ctx, String token) {
+        prefs(ctx).edit().putString("tokenPush", token == null ? "" : token).apply();
+    }
+
     /** Salva (ou atualiza) a conta logada agora, colocando-a no topo da lista. */
     static synchronized void registrar(Context ctx, String id, String nome, String email, String cookies) {
         JSONArray antiga = lista(ctx);

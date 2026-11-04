@@ -58,6 +58,13 @@ public class ContasPlugin extends Plugin {
         getActivity().runOnUiThread(() -> Contas.trocarSessao(null, () -> call.resolve()));
     }
 
+    /** Guarda o código de notificações deste celular (vazio = notificações desativadas). */
+    @PluginMethod
+    public void salvarTokenPush(PluginCall call) {
+        Contas.definirTokenPush(getContext(), call.getString("token", ""));
+        call.resolve();
+    }
+
     /** Remove uma conta da lista. Se for a que está em uso, sai dela também. */
     @PluginMethod
     public void remover(PluginCall call) {

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="notificacao_cor">#FF2E97</color>
+    <string name="canal_loja">loja</string>
+</resources>

@@ -18,6 +18,12 @@ final class ContasPonte {
         this.ctx = ctx.getApplicationContext();
     }
 
+    /** Código de notificações deste celular, para a loja saber para onde enviar avisos. */
+    @JavascriptInterface
+    public String tokenPush() {
+        return Contas.tokenPush(ctx);
+    }
+
     @JavascriptInterface
     public String registrar(String json) {
         try {

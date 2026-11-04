@@ -24,6 +24,29 @@
     return null;
   }
 
+  // Notificações: avisa a loja qual é o código deste celular (e de qual conta),
+  // para ela poder mandar "seu pedido foi enviado" e promoções. Só reenvia quando muda.
+  function enviarTokenPush(usuario) {
+    var token = typeof window.DesejoContas.tokenPush === "function" ? window.DesejoContas.tokenPush() : "";
+    if (!token) return;
+    var chave = token + "|" + usuario;
+    try {
+      if (localStorage.getItem("di_push_enviado") === chave) return;
+    } catch (e) {}
+    fetch("/_api/app/push_token", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: token }),
+    })
+      .then(function (r) {
+        if (r.ok) {
+          try { localStorage.setItem("di_push_enviado", chave); } catch (e) {}
+        }
+      })
+      .catch(function () {});
+  }
+
   function verificar() {
     clearTimeout(espera);
     espera = setTimeout(function () {
@@ -41,6 +64,7 @@
             };
           }
           var acao = window.DesejoContas.registrar(JSON.stringify(info));
+          enviarTokenPush(u ? String(u.id) : "-");
           if (acao === "login" && location.pathname !== "/login") {
             location.replace("/login?next=%2F");
           }

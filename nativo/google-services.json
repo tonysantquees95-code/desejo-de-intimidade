@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "765006546506",
+    "project_id": "desejo-de-intimidade",
+    "storage_bucket": "desejo-de-intimidade.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765006546506:android:a0be3dfd38e7e12dcec8b3",
+        "android_client_info": {
+          "package_name": "com.desejodeintimidade.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDDmQdYh8tDR5Mdx7nHHQGqicyT8UxO9U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
