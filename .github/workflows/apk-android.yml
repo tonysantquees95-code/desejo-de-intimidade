@@ -81,6 +81,12 @@ jobs:
             --prerelease \
             --title "App Android 1.0.${VERSAO_CODIGO} (${TIPO})" \
             --notes "Gerado em $(date -u +'%d/%m/%Y %H:%M') UTC. ${NOTA} Baixe o arquivo .apk abaixo e abra no celular Android para instalar."
+          # Garante que a página do download fique publicada (não como rascunho).
+          for tentativa in 1 2 3; do
+            gh release edit teste-android --draft=false && break
+            sleep 5
+          done
+          test "$(gh release view teste-android --json isDraft --jq .isDraft)" = "false"
 
       - uses: actions/upload-artifact@v4
         with:
