@@ -163,6 +163,32 @@
     .painel .botao { margin-top: 10px; }
     .versao { display: block; margin-top: 4px; color: #5c5c5c; }
 
+    /* Contas salvas */
+    .conta-email { margin: -4px 0 2px; text-align: center; color: var(--suave); font-size: 13px; overflow-wrap: anywhere; }
+    .contas-lista { list-style: none; margin: 0 0 6px; padding: 0; }
+    .contas-lista li {
+      display: flex; align-items: center; gap: 10px; padding: 10px 0;
+      border-top: 1px solid rgba(255, 46, 151, .18);
+    }
+    .conta-entrar {
+      flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; text-align: left;
+      background: none; border: 0; color: var(--texto); padding: 4px 0; cursor: pointer; font-family: var(--sans);
+    }
+    .avatar {
+      flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+      border: 1px solid var(--neon); color: var(--neon); font: 600 17px var(--serif);
+    }
+    .conta-info { min-width: 0; }
+    .conta-info strong { display: block; font-size: 15px; }
+    .conta-info span { display: block; color: var(--suave); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .conta-info em { font-style: normal; color: var(--neon); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .conta-remover {
+      flex: none; background: none; border: 1px solid rgba(255, 255, 255, .18); color: var(--suave);
+      border-radius: 999px; padding: 6px 10px; font: 600 12px var(--sans); cursor: pointer;
+    }
+    .painel .pular { width: 100%; margin-top: 4px; }
+    .painel .fechar { color: var(--suave); }
+
     @media (min-height: 760px) { main { gap: 34px; } h1 { font-size: 32px; } }
     @media (max-height: 700px) {
       body { padding-top: 16px; }
@@ -199,18 +225,26 @@
 
     <section class="boas-vindas">
       <p class="rotulo" id="rotulo">Bem-vindo(a)</p>
-      <h1>Seu momento de <em>desejo</em> começa aqui</h1>
-      <p class="lead">Entre na sua conta para comprar com rapidez e acompanhar seus pedidos, ou explore a loja à vontade.</p>
+      <h1 id="titulo">Seu momento de <em>desejo</em> começa aqui</h1>
+      <p class="lead" id="lead">Entre na sua conta para comprar com rapidez e acompanhar seus pedidos, ou explore a loja à vontade.</p>
     </section>
 
-    <div class="acoes">
+    <!-- Quem já entrou antes: saudação com o nome e "Continuar como" -->
+    <div class="acoes" id="acoes-conta" hidden>
+      <button class="botao primario" type="button" id="continuar">Continuar</button>
+      <p class="conta-email" id="continuar-email"></p>
+      <button class="botao secundario" type="button" id="trocar-conta">Trocar ou adicionar conta</button>
+    </div>
+
+    <div class="acoes" id="acoes-visitante">
       <a class="botao primario" href="#" data-ir="/login?next=%2F">Entrar na minha conta</a>
       <a class="botao secundario" href="#" data-ir="/cadastro?next=%2F">Criar conta</a>
       <a class="pular" href="#" data-ir="/"><span>Só quero olhar a loja</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <p class="aviso" id="aviso" role="status">Você está sem internet. Confira a conexão e tente de novo.</p>
     </div>
+
+    <p class="aviso" id="aviso" role="status">Você está sem internet. Confira a conexão e tente de novo.</p>
 
     <ul class="selos">
       <li>
@@ -257,6 +291,20 @@
     </div>
   </div>
 
+  <div class="painel" id="painel-contas" role="dialog" aria-modal="true" aria-labelledby="contas-titulo">
+    <div class="painel-caixa">
+      <h2 id="contas-titulo">Contas</h2>
+      <p class="sub">Toque numa conta para entrar. As contas ficam salvas só neste celular.</p>
+      <ul class="contas-lista" id="contas-lista"></ul>
+      <button class="botao secundario" type="button" id="adicionar-conta">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Adicionar outra conta
+      </button>
+      <button class="pular" type="button" id="sem-conta"><span>Entrar sem conta, só para olhar</span></button>
+      <button class="pular fechar" type="button" id="fechar-contas"><span>Fechar</span></button>
+    </div>
+  </div>
+
   <div class="idade" id="idade" role="dialog" aria-modal="true" aria-labelledby="idade-titulo">
     <div class="idade-caixa">
       <div class="idade-selo">18+</div>
@@ -282,12 +330,16 @@
 
     // Botões: abrem a loja dentro do app, ou avisam se estiver sem internet
     var aviso = document.getElementById("aviso");
+    function online() {
+      if (navigator.onLine === false) { aviso.classList.add("visivel"); return false; }
+      aviso.classList.remove("visivel");
+      return true;
+    }
+    function ir(caminho) { window.location.href = LOJA + caminho; }
     document.querySelectorAll("[data-ir]").forEach(function (el) {
       el.addEventListener("click", function (ev) {
         ev.preventDefault();
-        if (navigator.onLine === false) { aviso.classList.add("visivel"); return; }
-        aviso.classList.remove("visivel");
-        window.location.href = LOJA + el.getAttribute("data-ir");
+        if (online()) ir(el.getAttribute("data-ir"));
       });
     });
 
@@ -348,6 +400,125 @@
         P.Privacidade.definirTrava({ ativa: novo }).then(mostrarEstado).catch(function () {
           document.getElementById("nota-trava").hidden = false;
         });
+      });
+    }
+
+    // ---- Contas salvas: "Olá, Nome", continuar, trocar ou adicionar conta ----
+    var painelContas = document.getElementById("painel-contas");
+    var contaAtual = null;
+
+    function primeiroNome(c) {
+      var base = (c.nome || (c.email || "").split("@")[0] || "").trim().split(/\s+/)[0] || "";
+      return base ? base.charAt(0).toUpperCase() + base.slice(1) : "você";
+    }
+    function nomeCompleto(c) { return (c.nome || "").trim() || primeiroNome(c); }
+
+    function entrarNaConta(c) {
+      if (!online()) return;
+      P.Contas.entrar({ id: c.id })
+        .then(function () { ir("/"); })
+        .catch(function () { ir("/login?next=%2F"); });
+    }
+
+    function montarLista(contas, ultima) {
+      var lista = document.getElementById("contas-lista");
+      lista.textContent = "";
+      contas.forEach(function (c) {
+        var li = document.createElement("li");
+        var entrar = document.createElement("button");
+        entrar.type = "button";
+        entrar.className = "conta-entrar";
+        var avatar = document.createElement("span");
+        avatar.className = "avatar";
+        avatar.textContent = primeiroNome(c).charAt(0);
+        var info = document.createElement("span");
+        info.className = "conta-info";
+        var nome = document.createElement("strong");
+        nome.textContent = nomeCompleto(c);
+        info.appendChild(nome);
+        if (c.email) {
+          var email = document.createElement("span");
+          email.textContent = c.email;
+          info.appendChild(email);
+        }
+        if (c.id === ultima) {
+          var tag = document.createElement("em");
+          tag.textContent = "Última usada";
+          info.appendChild(tag);
+        }
+        entrar.appendChild(avatar);
+        entrar.appendChild(info);
+        entrar.addEventListener("click", function () { entrarNaConta(c); });
+
+        var remover = document.createElement("button");
+        remover.type = "button";
+        remover.className = "conta-remover";
+        remover.textContent = "Remover";
+        remover.setAttribute("aria-label", "Remover a conta de " + nomeCompleto(c) + " deste celular");
+        remover.addEventListener("click", function () {
+          P.Contas.remover({ id: c.id }).then(function (r) {
+            mostrarContas(r);
+            if (!(r.contas || []).length) painelContas.classList.remove("aberto");
+          }).catch(function () {});
+        });
+
+        li.appendChild(entrar);
+        li.appendChild(remover);
+        lista.appendChild(li);
+      });
+    }
+
+    function mostrarContas(r) {
+      var contas = (r && r.contas) || [];
+      var temContas = contas.length > 0;
+      document.getElementById("acoes-conta").hidden = !temContas;
+      document.getElementById("acoes-visitante").hidden = temContas;
+      if (!temContas) {
+        contaAtual = null;
+        document.getElementById("rotulo").textContent = ler("di_visitou") ? "Bem-vindo(a) de volta" : "Bem-vindo(a)";
+        var t = document.getElementById("titulo");
+        t.textContent = "Seu momento de ";
+        var em = document.createElement("em"); em.textContent = "desejo"; t.appendChild(em);
+        t.appendChild(document.createTextNode(" começa aqui"));
+        document.getElementById("lead").textContent = "Entre na sua conta para comprar com rapidez e acompanhar seus pedidos, ou explore a loja à vontade.";
+        return;
+      }
+      contaAtual = contas.filter(function (c) { return c.id === r.ultima; })[0] || contas[0];
+      var nome = primeiroNome(contaAtual);
+      document.getElementById("rotulo").textContent = "Bem-vindo(a) de volta";
+      var titulo = document.getElementById("titulo");
+      titulo.textContent = "Olá, ";
+      var destaque = document.createElement("em");
+      destaque.textContent = nome;
+      titulo.appendChild(destaque);
+      titulo.appendChild(document.createTextNode("!"));
+      document.getElementById("lead").textContent = "Que bom ter você aqui de novo. Continue de onde parou ou escolha outra conta.";
+      document.getElementById("continuar").textContent = "Continuar como " + nome;
+      document.getElementById("continuar-email").textContent = contaAtual.email || "";
+      montarLista(contas, contaAtual.id);
+    }
+
+    if (temPlugin("Contas")) {
+      P.Contas.listar().then(mostrarContas).catch(function () {});
+      document.getElementById("continuar").addEventListener("click", function () {
+        if (contaAtual) entrarNaConta(contaAtual);
+      });
+      document.getElementById("trocar-conta").addEventListener("click", function () {
+        painelContas.classList.add("aberto");
+      });
+      document.getElementById("fechar-contas").addEventListener("click", function () {
+        painelContas.classList.remove("aberto");
+      });
+      painelContas.addEventListener("click", function (ev) {
+        if (ev.target === painelContas) painelContas.classList.remove("aberto");
+      });
+      document.getElementById("adicionar-conta").addEventListener("click", function () {
+        if (!online()) return;
+        P.Contas.semSessao().then(function () { ir("/login?next=%2F"); });
+      });
+      document.getElementById("sem-conta").addEventListener("click", function () {
+        if (!online()) return;
+        P.Contas.semSessao().then(function () { ir("/"); });
       });
     }
 

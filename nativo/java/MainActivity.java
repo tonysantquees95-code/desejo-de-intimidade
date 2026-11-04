@@ -7,12 +7,17 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import com.getcapacitor.BridgeActivity;
+import com.getcapacitor.WebViewListener;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends BridgeActivity {
 
@@ -25,11 +30,15 @@ public class MainActivity extends BridgeActivity {
     private boolean pedindo = false;
     private long saiuEm = 0;
 
+    private String scriptContas;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(PrivacidadePlugin.class);
+        registerPlugin(ContasPlugin.class);
         super.onCreate(savedInstanceState);
         aplicarProtecaoDeTela();
+        prepararContas();
 
         prompt = new BiometricPrompt(this, ContextCompat.getMainExecutor(this),
             new BiometricPrompt.AuthenticationCallback() {
@@ -47,6 +56,39 @@ public class MainActivity extends BridgeActivity {
                     pedindo = false;
                 }
             });
+    }
+
+    /**
+     * Contas salvas: nas páginas da loja, roda web/contas-ponte.js, que pergunta à loja
+     * quem está logado e avisa o app pela ponte "DesejoContas".
+     */
+    private void prepararContas() {
+        WebView webView = getBridge().getWebView();
+        webView.addJavascriptInterface(new ContasPonte(this), "DesejoContas");
+        getBridge().addWebViewListener(new WebViewListener() {
+            @Override
+            public void onPageLoaded(WebView view) {
+                String url = view.getUrl();
+                if (url != null && url.startsWith(Contas.LOJA)) {
+                    view.evaluateJavascript(lerScriptContas(), null);
+                }
+            }
+        });
+    }
+
+    private String lerScriptContas() {
+        if (scriptContas == null) {
+            try (InputStream in = getAssets().open("public/contas-ponte.js")) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+                int n;
+                while ((n = in.read(buffer)) > 0) out.write(buffer, 0, n);
+                scriptContas = out.toString("UTF-8");
+            } catch (IOException e) {
+                scriptContas = "";
+            }
+        }
+        return scriptContas;
     }
 
     /** Com a trava ligada, o conteúdo do app não aparece em prints nem na tela de apps recentes. */

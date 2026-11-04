@@ -14,6 +14,17 @@ App para celular (Android e iOS) da loja **Desejo de Intimidade**, sex shop com 
    *Criar conta* ou *Só quero olhar a loja*. Depois do login a pessoa volta direto para a loja.
 4. **Loja online** em tela cheia, dentro do app.
 
+### Contas salvas
+
+Quando a pessoa está logada na loja, o app guarda o nome e a sessão daquela conta (só no celular,
+nunca a senha). Na próxima abertura, a tela de boas-vindas mostra **"Olá, Nome!"** e o botão
+**Continuar como Nome**. Em **Trocar ou adicionar conta** dá para entrar em outra conta salva com um
+toque, adicionar uma nova, remover uma conta do celular ou entrar sem conta. Se a sessão de uma
+conta tiver expirado, o app abre a tela de login.
+
+Como funciona: `web/contas-ponte.js` roda nas páginas da loja, consulta `/_api/auth/session` e avisa
+o app (`nativo/java/ContasPonte.java`); `ContasPlugin.java` troca a sessão do navegador do app.
+
 ### Privacidade (botão no canto da tela de boas-vindas)
 
 - **Ícone discreto:** troca o ícone e o nome na tela inicial por "DI", em fundo grafite.
