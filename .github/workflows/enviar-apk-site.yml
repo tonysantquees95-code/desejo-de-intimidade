@@ -1,0 +1,36 @@
+name: Enviar APK para o site
+
+# Envia o APK publicado em Releases (teste-android) para o armazenamento do site no Floot.
+# O endereço de envio é temporário (15 minutos) e gerado pelo Floot a cada envio.
+on:
+  workflow_dispatch:
+    inputs:
+      endereco:
+        description: "Endereço de envio gerado pelo Floot (PUT)"
+        required: true
+      tamanho:
+        description: "Tamanho esperado do APK, em bytes"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o APK publicado
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download teste-android -R "$GITHUB_REPOSITORY" -p "desejo-de-intimidade.apk"
+          ls -l desejo-de-intimidade.apk
+          test "$(stat -c %s desejo-de-intimidade.apk)" = "${{ inputs.tamanho }}"
+
+      - name: Enviar para o Floot
+        env:
+          ENDERECO: ${{ inputs.endereco }}
+        run: |
+          curl -sS -f -X PUT \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @desejo-de-intimidade.apk "$ENDERECO" -o /dev/null -w "HTTP %{http_code}\n"
