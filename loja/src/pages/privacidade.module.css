@@ -1,0 +1,29 @@
+.texto {
+  max-width: 46rem;
+  color: var(--foreground);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.texto h2 {
+  margin: var(--spacing-8) 0 var(--spacing-3);
+  font-family: var(--font-family-display);
+  font-size: 1.25rem;
+  color: var(--neon);
+}
+.texto p,
+.texto ul {
+  margin: 0 0 var(--spacing-4);
+  color: var(--muted-foreground);
+}
+.texto ul {
+  padding-left: 1.25rem;
+}
+.texto li {
+  margin-bottom: var(--spacing-2);
+}
+.texto strong {
+  color: var(--foreground);
+}
+.texto a {
+  color: var(--neon);
+}

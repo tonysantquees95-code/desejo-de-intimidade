@@ -1,0 +1,251 @@
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-family-base);
+}
+.main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--spacing-6) var(--spacing-4) var(--spacing-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+.back:hover {
+  color: var(--neon);
+}
+.skeleton {
+  height: 24rem;
+  width: 100%;
+}
+.notFound {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+}
+.top {
+  display: grid;
+  gap: var(--spacing-8);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 860px) {
+  .top {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+.imageWrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 3 / 4;
+  max-height: 40rem;
+}
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: var(--neon);
+}
+.title {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  line-height: 1.1;
+  color: var(--foreground);
+}
+.ratingLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--neon);
+}
+.description {
+  margin: 0;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+}
+.note {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.buy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+.qty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+.qtyValue {
+  min-width: 1.75rem;
+  text-align: center;
+  font-weight: 700;
+}
+.glow {
+  box-shadow: 0 0 22px var(--neon-soft);
+}
+.doubts {
+  align-self: flex-start;
+}
+.cards {
+  display: grid;
+  gap: var(--spacing-4);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 860px) {
+  .cards {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.cardTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-family: var(--font-family-display);
+  font-size: 1.25rem;
+  color: var(--neon);
+}
+.pixLine {
+  margin: 0;
+  color: var(--foreground);
+}
+.pixLine strong {
+  color: var(--neon);
+  font-size: 1.125rem;
+}
+.small {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+.installments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.installments li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+.installments li:last-child {
+  border-bottom: 0;
+}
+.cepForm {
+  display: flex;
+  gap: var(--spacing-2);
+}
+.cepForm > input {
+  flex: 1;
+  min-width: 0;
+}
+.specs {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.specRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+.specRow:last-child {
+  border-bottom: 0;
+}
+.specRow dt {
+  color: var(--muted-foreground);
+}
+.specRow dd {
+  margin: 0;
+  text-align: right;
+}
+.reviewSkeleton {
+  height: 6rem;
+  width: 100%;
+}
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+.avg {
+  font-size: 2rem;
+  color: var(--neon);
+}
+.reviewList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.review {
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--border);
+}
+.reviewHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+.reviewText {
+  margin: var(--spacing-2) 0 0;
+  line-height: 1.6;
+}

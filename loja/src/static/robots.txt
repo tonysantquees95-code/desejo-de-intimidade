@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /carrinho
+Disallow: /checkout
+Disallow: /login
+Disallow: /cadastro
+Disallow: /minha-conta
+Disallow: /pedido/
+Disallow: /avaliar/
+Disallow: /_api/
+
+Sitemap: https://desejo-de-intimidade.floot.app/sitemap.xml

@@ -1,0 +1,42 @@
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+.old {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  font-size: 0.875rem;
+}
+.badge {
+  background: var(--neon);
+  color: var(--primary-foreground);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 1px var(--spacing-2);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 10px var(--neon-soft);
+}
+.price {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--foreground);
+}
+.pix {
+  color: var(--neon);
+  font-size: 0.8125rem;
+}
+.large .price {
+  font-size: 2rem;
+}
+.large .old {
+  font-size: 1.0625rem;
+}
+.large .pix {
+  font-size: 0.9375rem;
+}

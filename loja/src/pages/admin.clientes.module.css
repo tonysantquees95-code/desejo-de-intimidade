@@ -1,0 +1,45 @@
+.skeleton {
+  height: 8rem;
+  width: 100%;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.meta {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+.code {
+  text-align: center;
+  font-family: var(--font-family-monospace);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.25rem;
+  color: var(--neon);
+  padding: var(--spacing-4);
+  border: 1px solid var(--neon);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 20px var(--neon-faint);
+}

@@ -1,0 +1,85 @@
+.skeleton {
+  height: 16rem;
+  width: 100%;
+}
+.cabeca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-2);
+}
+.botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+.aviso {
+  margin: var(--spacing-3) 0 0;
+  font-size: 0.8125rem;
+  color: var(--warning);
+}
+.campo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  padding: var(--spacing-2) var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.campo code {
+  flex: 1 1 12rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-family-monospace);
+  font-size: 0.8125rem;
+}
+.rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.perguntas {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--foreground);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.conversas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.mensagens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+.cliente,
+.venus {
+  margin: 0;
+  max-width: 85%;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.cliente {
+  align-self: flex-start;
+  background: var(--muted);
+}
+.venus {
+  align-self: flex-end;
+  background: var(--neon-faint);
+  border: 1px solid var(--neon-soft);
+}

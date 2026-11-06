@@ -1,0 +1,118 @@
+.secao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-8);
+}
+.secaoTitulo {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-2);
+}
+.numero {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.numero strong {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--neon);
+}
+.numero span {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.chave {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+.chave code {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+}
+.rotulo {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.item {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+.item:last-child {
+  border-bottom: none;
+}
+.hora {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  padding-top: 2px;
+}
+.texto {
+  margin: 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.meta {
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: center;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.falha {
+  color: var(--destructive);
+}
+.dia {
+  margin: var(--spacing-4) 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.skeleton {
+  height: 8rem;
+  width: 100%;
+}

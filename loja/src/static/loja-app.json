@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Desejo de Intimidade",
+  "short_name": "Desejo",
+  "description": "Moda íntima e sex shop com entrega discreta.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/_cdn/static/5fca2697-82ee-406c-9472-4a112f72f1b7-C-pia-de-C-pia-de-Logotipo-Boutique_20261026_013613_0000.png",
+      "sizes": "2000x2000",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+.pagina {
+  padding: var(--spacing-3) var(--spacing-3) 0;
+}
+.instalar {
+  width: 100%;
+  margin-bottom: var(--spacing-3);
+}
+@media (min-width: 640px) {
+  .pagina {
+    padding: var(--spacing-6) var(--spacing-6) 0;
+  }
+  .instalar {
+    width: auto;
+  }
+}

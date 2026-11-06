@@ -1,0 +1,105 @@
+.skeleton {
+  height: 5rem;
+  width: 100%;
+}
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-3);
+}
+.numero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding: var(--spacing-4);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+.numero svg {
+  color: var(--neon);
+}
+.numero strong {
+  font-size: 1.75rem;
+  color: var(--foreground);
+  font-family: var(--font-family-display);
+}
+.alerta {
+  margin: 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-lg);
+  color: var(--warning);
+  font-size: 0.875rem;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  font-size: 0.875rem;
+}
+.campo > span {
+  font-weight: 600;
+}
+.campo small,
+.dica {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.atalhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+.atalho {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  border-radius: var(--radius-full);
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.atalhoAtivo {
+  border-color: var(--neon);
+  color: var(--neon);
+  box-shadow: 0 0 12px var(--neon-faint);
+}
+.previa {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: #1c1c1f;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  max-width: 26rem;
+}
+.previa span {
+  color: #c8c8c8;
+  line-height: 1.4;
+}
+.previaTopo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #9a9a9a;
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+}
+.previaTopo svg {
+  color: var(--neon);
+}
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}

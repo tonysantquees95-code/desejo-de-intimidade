@@ -1,0 +1,51 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-6) var(--spacing-4);
+  background:
+    radial-gradient(40rem 24rem at 50% 0%, rgba(255, 46, 151, 0.2), transparent 65%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-family-base);
+}
+.card {
+  width: 100%;
+  max-width: 26rem;
+  padding: var(--spacing-8);
+  background: var(--card);
+  border: 1px solid var(--neon);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 40px var(--neon-faint);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.title {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 1.75rem;
+  color: var(--neon);
+  text-shadow: 0 0 18px var(--neon-faint);
+}
+.subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+.back:hover {
+  color: var(--neon);
+}
+.inlineLink {
+  color: var(--neon);
+  text-decoration: none;
+}

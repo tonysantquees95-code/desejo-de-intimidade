@@ -1,0 +1,261 @@
+.raiz {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 9rem);
+  min-height: 30rem;
+  max-width: 44rem;
+  margin: 0 auto;
+  border: 1px solid var(--neon-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  font-family: var(--font-family-base);
+  color: var(--foreground);
+}
+
+/* ---------------------------------------------------------------- topo com o orbe */
+.topo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-2) var(--spacing-4) var(--spacing-1);
+  background: radial-gradient(ellipse at 50% 40%, var(--neon-faint), transparent 70%);
+  border-bottom: 1px solid var(--border);
+}
+.orbe {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.orbe:disabled {
+  cursor: default;
+}
+.orbe:focus-visible {
+  outline: 2px solid var(--neon-soft);
+  outline-offset: -1.5rem;
+}
+.status {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.botoesTopo {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  display: flex;
+  gap: var(--spacing-1);
+}
+.icone {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.icone:hover {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+/* ---------------------------------------------------------------- conversa */
+.conversa {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  -webkit-overflow-scrolling: touch;
+}
+.balao {
+  margin: 0;
+  max-width: 88%;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-lg);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.eu {
+  align-self: flex-end;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.venus {
+  align-self: flex-start;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+.bloco {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+}
+
+.confirmacao {
+  display: flex;
+  gap: var(--spacing-2);
+}
+.confirmar,
+.cancelar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: 2.5rem;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-full);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.confirmar {
+  border: none;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 0 16px var(--neon-faint);
+}
+.cancelar {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+}
+.situacao {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+.situacao[data-situacao="feito"] {
+  color: var(--success);
+}
+.situacao[data-situacao="erro"] {
+  color: var(--error);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+.acao {
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--neon-soft);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  color: var(--neon);
+  text-decoration: none;
+}
+.acao:hover {
+  background: var(--neon-faint);
+}
+
+/* ---------------------------------------------------------------- atalhos e envio */
+.atalhos {
+  display: flex;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-top: 1px solid var(--border);
+}
+.atalhos::-webkit-scrollbar {
+  display: none;
+}
+.atalho {
+  flex-shrink: 0;
+  padding: var(--spacing-1) var(--spacing-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.atalho:hover {
+  border-color: var(--neon-soft);
+  color: var(--foreground);
+}
+
+.envio {
+  display: flex;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3);
+  padding-bottom: calc(var(--spacing-3) + env(safe-area-inset-bottom));
+  background: var(--card);
+}
+.campo {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 16px; /* evita o zoom automático do iPhone */
+}
+.campo:focus {
+  outline: none;
+  border-color: var(--neon-soft);
+  box-shadow: var(--shadow-focus);
+}
+.botao {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--background);
+  color: var(--neon);
+  cursor: pointer;
+}
+.ativo {
+  border-color: var(--neon);
+  box-shadow: 0 0 14px var(--neon-soft);
+}
+.enviar {
+  border: none;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.enviar:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .raiz {
+    height: calc(100dvh - 7.5rem);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* Dentro do popup da Vênus: ocupa o espaço do painel, sem moldura própria. */
+.raiz.embutido {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+}

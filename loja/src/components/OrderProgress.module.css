@@ -1,0 +1,90 @@
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  width: 100%;
+}
+.step {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  text-align: center;
+}
+.step::before {
+  content: "";
+  position: absolute;
+  top: 0.75rem;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.step:first-child::before {
+  display: none;
+}
+.step[data-state="done"]::before,
+.step[data-state="current"]::before {
+  background: var(--neon);
+}
+.dot {
+  position: relative;
+  z-index: 1;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border);
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+.step[data-state="done"] .dot {
+  background: var(--neon);
+  border-color: var(--neon);
+  color: var(--primary-foreground);
+}
+.step[data-state="current"] .dot {
+  border-color: var(--neon);
+  color: var(--neon);
+  box-shadow: 0 0 14px var(--neon-soft);
+}
+.label {
+  font-size: 0.6875rem;
+  line-height: 1.25;
+  color: var(--muted-foreground);
+  padding: 0 2px;
+}
+.step[data-state="current"] .label {
+  color: var(--neon);
+  font-weight: 700;
+}
+.step[data-state="done"] .label {
+  color: var(--foreground);
+}
+.compact .label {
+  display: none;
+}
+.compact .step[data-state="current"] .label {
+  display: block;
+  position: absolute;
+  top: 1.9rem;
+  white-space: nowrap;
+}
+.compact {
+  padding-bottom: 1.4rem;
+}
+.canceled {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--error);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
