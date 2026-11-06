@@ -143,6 +143,19 @@ jobs:
             if (faltam.length) console.log("::notice::Ainda sem: " + faltam.join(", ") + " (criar em Settings → Secrets and variables → Actions e rodar de novo).");
           '
           if [ "$(cat /tmp/segredos.json)" != "{}" ]; then npx wrangler secret bulk /tmp/segredos.json; fi
+          # confere o formato da chave do Firebase sem mostrar o conteúdo
+          node -e '
+            const v = process.env.FIREBASE_CONTA_SERVICO;
+            if (!v) process.exit(0);
+            let c;
+            try { c = JSON.parse(v); } catch (e) {
+              const t = v.trim();
+              console.log("::warning::FIREBASE_CONTA_SERVICO não é um JSON válido (tamanho " + v.length + ", começa com { : " + t.startsWith("{") + ", termina com } : " + t.endsWith("}") + ", aspas tortas: " + /[\u201c\u201d]/.test(v) + ").");
+              process.exit(0);
+            }
+            const faltam = ["type", "project_id", "private_key", "client_email"].filter((k) => !c[k]);
+            console.log("Firebase: campos presentes: " + Object.keys(c).join(", ") + (faltam.length ? " | FALTAM: " + faltam.join(", ") : " | ok"));
+          '
           rm -f /tmp/segredos.json
 
       - name: Conferir se está no ar
