@@ -165,11 +165,11 @@ export default function IndexPage() {
         />
         <meta
           property="og:image"
-          content="https://desejo-de-intimidade.floot.app/_cdn/static/86d30161-7ae8-424f-a57b-78ebd06a5975-logo-og.jpg"
+          content="https://desejo-de-intimidade.tonysantquees95.workers.dev/_cdn/static/86d30161-7ae8-424f-a57b-78ebd06a5975-logo-og.jpg"
         />
         <meta property="og:image:width" content="600" />
         <meta property="og:image:height" content="600" />
-        <meta property="og:url" content="https://desejo-de-intimidade.floot.app/" />
+        <meta property="og:url" content="https://desejo-de-intimidade.tonysantquees95.workers.dev/" />
         <meta name="twitter:card" content="summary" />
         <link rel="canonical" href={`${SITE_URL}/`} />
         <meta name="rating" content="adult" />

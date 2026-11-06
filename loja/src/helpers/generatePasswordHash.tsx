@@ -1,7 +1,6 @@
-import { hash } from "bcryptjs";
+import { gerarHashSenha } from "./senha";
 
 export async function generatePasswordHash(password: string) {
-  const saltRounds = 10;
-  const passwordHash = await hash(password, saltRounds);
-  return passwordHash;
+  // No Cloudflare o bcrypt passa do limite de CPU; usamos PBKDF2 (nativo), ver helpers/senha.
+  return gerarHashSenha(password);
 }

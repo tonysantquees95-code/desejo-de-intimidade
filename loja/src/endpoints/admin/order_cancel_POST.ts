@@ -70,7 +70,7 @@ export async function handle(request: Request) {
     // 2) Mark the order as canceled
     await db
       .updateTable("orders")
-      .set({ status: "canceled", updatedAt: sql`now()` })
+      .set({ status: "canceled", updatedAt: new Date() })
       .where("id", "=", order.id)
       .execute();
     await releaseOrderStock(order.id);

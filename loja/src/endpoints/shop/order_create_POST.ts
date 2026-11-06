@@ -250,7 +250,7 @@ export async function handle(request: Request) {
         .onConflict((oc) =>
           oc.column("userId").doUpdateSet({
             ...(address ? profile : { cpf: profileCpf, phone: input.customer.phone }),
-            updatedAt: sql`now()`,
+            updatedAt: new Date(),
           }),
         )
         .execute();
@@ -317,7 +317,7 @@ export async function handle(request: Request) {
     } catch (error) {
       await db
         .updateTable("orders")
-        .set({ status: "canceled", updatedAt: sql`now()` })
+        .set({ status: "canceled", updatedAt: new Date() })
         .where("id", "=", orderId)
         .execute();
       await releaseOrderStock(orderId);
@@ -348,8 +348,8 @@ export async function handle(request: Request) {
         paymentProviderId: String(payment.id),
         pixQrText: payment.point_of_interaction?.transaction_data?.qr_code ?? null,
         pixExpiresAt,
-        paidAt: status === "paid" ? sql`now()` : null,
-        updatedAt: sql`now()`,
+        paidAt: status === "paid" ? new Date() : null,
+        updatedAt: new Date(),
       })
       .where("id", "=", orderId)
       .execute();

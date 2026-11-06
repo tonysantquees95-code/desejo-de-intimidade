@@ -64,7 +64,7 @@ export default function CategoriaPage() {
         {category ? <meta property="og:url" content={url} /> : null}
         <meta
           property="og:image"
-          content="https://desejo-de-intimidade.floot.app/_cdn/static/86d30161-7ae8-424f-a57b-78ebd06a5975-logo-og.jpg"
+          content="https://desejo-de-intimidade.tonysantquees95.workers.dev/_cdn/static/86d30161-7ae8-424f-a57b-78ebd06a5975-logo-og.jpg"
         />
         {jsonLd.map((block, i) => (
           <script key={i} type="application/ld+json">

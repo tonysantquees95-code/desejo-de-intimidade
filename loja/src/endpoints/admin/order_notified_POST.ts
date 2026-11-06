@@ -11,7 +11,7 @@ export async function handle(request: Request) {
     const { orderId } = schema.parse(superjson.parse(await request.text()));
     await db
       .updateTable("orders")
-      .set({ customerNotifiedStatus: sql`status::text`, updatedAt: sql`now()` })
+      .set({ customerNotifiedStatus: sql`status`, updatedAt: new Date() })
       .where("id", "=", orderId)
       .execute();
     return new Response(superjson.stringify({ ok: true } satisfies OutputType));

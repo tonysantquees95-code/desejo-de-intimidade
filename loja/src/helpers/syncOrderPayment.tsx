@@ -25,7 +25,7 @@ export async function syncOrderPayment(orderId: number): Promise<void> {
   if (payment.status === "approved") {
     await db
       .updateTable("orders")
-      .set({ status: "paid", paidAt: sql`now()`, updatedAt: sql`now()` })
+      .set({ status: "paid", paidAt: new Date(), updatedAt: new Date() })
       .where("id", "=", order.id)
       .where("status", "=", "awaiting_payment")
       .execute();
@@ -45,7 +45,7 @@ export async function syncOrderPayment(orderId: number): Promise<void> {
   if (failed || pixExpired) {
     await db
       .updateTable("orders")
-      .set({ status: "canceled", updatedAt: sql`now()` })
+      .set({ status: "canceled", updatedAt: new Date() })
       .where("id", "=", order.id)
       .where("status", "=", "awaiting_payment")
       .execute();

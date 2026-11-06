@@ -14,7 +14,7 @@ export const flootPreviewPublic = true;
 
 const PAUSA_HUMANO_MS = 12 * 3600_000;
 const GUARDAR_DIAS = 7;
-const SITE = "https://desejo-de-intimidade.floot.app";
+const SITE = "https://desejo-de-intimidade.tonysantquees95.workers.dev";
 const PEDE_PESSOA = /\b(atendente|humano|pessoa de verdade|falar com (alguem|a dona|o dono|voces|vcs)|troca|trocar|defeito|reclama|atrasad|nao chegou|reembolso|estorno|devolu)/;
 
 const MENU =

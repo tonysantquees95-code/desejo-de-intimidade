@@ -32,7 +32,7 @@ export async function handle(request: Request) {
       .set({
         status: input.status,
         trackingCode: input.trackingCode || null,
-        updatedAt: sql`now()`,
+        updatedAt: new Date(),
       })
       .where("id", "=", input.id)
       .executeTakeFirst();

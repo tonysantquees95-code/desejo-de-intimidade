@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.wrangler/
+worker/rotas.gen.ts
+publico/robots.txt
+publico/loja-app.json
+publico/app-versao.json
+publico/venus-loja-app.json

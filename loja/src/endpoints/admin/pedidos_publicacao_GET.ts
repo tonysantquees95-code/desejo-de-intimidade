@@ -27,7 +27,7 @@ export async function handle(request: Request) {
       .updateTable("publicacaoPedidos")
       .set({ estado: "fazendo", atualizado: new Date() })
       .where("estado", "=", "pendente")
-      .where("criado", ">", sql<Date>`now() - interval '2 days'`)
+      .where("criado", ">", new Date(Date.now() - 2 * 86_400_000))
       .returning(["id", "tipo", "turno", "ideiaRef", "ideiaTitulo", "quando", "legenda"])
       .execute();
     return new Response(superjson.stringify({ pedidos } satisfies OutputType));

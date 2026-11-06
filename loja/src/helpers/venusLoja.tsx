@@ -861,7 +861,7 @@ function prepararStatus(pedidos: VLPedido[], id: number, status: "paid" | "prepa
 }
 
 /** Link do WhatsApp da cliente com o aviso da nova etapa do pedido. */
-function linkAviso(a: VLAlteracao, site = "https://desejo-de-intimidade.floot.app"): string | null {
+function linkAviso(a: VLAlteracao, site = "https://desejo-de-intimidade.tonysantquees95.workers.dev"): string | null {
   if (a.tipo !== "status" && a.tipo !== "entregue") return null;
   const p = a.pedido;
   const numero = whatsappDoCliente(p);

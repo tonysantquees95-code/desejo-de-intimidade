@@ -42,7 +42,7 @@ export async function syncShipment(orderId: number): Promise<void> {
   if (tracking !== order.trackingCode || status !== order.status) {
     await db
       .updateTable("orders")
-      .set({ trackingCode: tracking, status, updatedAt: sql`now()` })
+      .set({ trackingCode: tracking, status, updatedAt: new Date() })
       .where("id", "=", order.id)
       .execute();
     // Avisa o cliente no app quando a transportadora confirma a postagem.

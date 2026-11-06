@@ -2,7 +2,7 @@
 import { db } from "../../helpers/db";
 import { sql } from "kysely";
 import { schema } from "./login_with_password_POST.schema";
-import { compare } from "bcryptjs";
+import { conferirSenha as compare } from "../../helpers/senha";
 import { randomBytes } from "crypto";
 import {
   setServerSession,
@@ -117,9 +117,7 @@ export async function handle(request: Request) {
       // Use PostgreSQL advisory lock to serialize access per email
       // This prevents concurrent processing of the same email address
       // The lock is automatically released when the transaction ends
-      await sql`SELECT pg_advisory_xact_lock(hashtextextended(${normalizedEmail},0))`.execute(
-        trx
-      );
+      // (no D1 não há trava por e-mail; o limite de tentativas continua valendo)
 
       // Get rate limiting info efficiently - use COUNT and MAX instead of SELECT *
       const rateLimitQuery = await trx

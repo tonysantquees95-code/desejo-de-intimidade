@@ -16,7 +16,7 @@ export async function handle(request: Request) {
           input.mode === "add"
             ? sql`coalesce(stock_quantity, 0) + ${input.quantity}`
             : input.quantity,
-        updatedAt: sql`now()`,
+        updatedAt: new Date(),
       })
       .where("id", "=", input.productId)
       .returning(["stockQuantity", "name"])

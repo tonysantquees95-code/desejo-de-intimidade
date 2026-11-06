@@ -14,7 +14,7 @@ import { anotarAjuste } from "./ajustesLog";
  * com aquela cliente. Resposta a story usa o story do dia. Começa DESLIGADO (instagram_direct_ligado = "1" liga).
  */
 
-export const SITE = "https://desejo-de-intimidade.floot.app";
+export const SITE = "https://desejo-de-intimidade.tonysantquees95.workers.dev";
 const CANAL = "instagram_direct";
 const PAUSA_HUMANO_MS = 12 * 3600_000;
 const GUARDAR_DIAS = 14;

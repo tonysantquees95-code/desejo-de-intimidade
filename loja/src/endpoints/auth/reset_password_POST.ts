@@ -43,7 +43,7 @@ export async function handle(request: Request) {
         .where("usedAt", "is", null)
         .orderBy("createdAt", "desc")
         .limit(1)
-        .forUpdate()
+        
         .executeTakeFirst();
 
       if (

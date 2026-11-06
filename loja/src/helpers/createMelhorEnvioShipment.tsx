@@ -177,7 +177,7 @@ export async function createMelhorEnvioShipment(orderId: number): Promise<void> 
       .set({
         melhorEnvioId: String(created.id),
         shipmentError: null,
-        updatedAt: sql`now()`,
+        updatedAt: new Date(),
       })
       .where("id", "=", orderId)
       .execute();
@@ -194,7 +194,7 @@ export async function createMelhorEnvioShipment(orderId: number): Promise<void> 
       .set({
         melhorEnvioId: null,
         shipmentError: describeError(error).slice(0, 300),
-        updatedAt: sql`now()`,
+        updatedAt: new Date(),
       })
       .where("id", "=", orderId)
       .execute();

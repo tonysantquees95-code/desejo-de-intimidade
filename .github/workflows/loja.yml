@@ -1,0 +1,136 @@
+name: Loja (Cloudflare)
+
+# Publica a loja (pasta loja/) no Cloudflare: Worker + arquivos do site + banco D1.
+# Segredos do repositório: CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID.
+# Na primeira vez, rode à mão com "importar_de" = endereço do JSON de migração gerado no Floot:
+# ele copia fotos e produtos para o repositório e carrega o banco vazio.
+on:
+  push:
+    branches: [main]
+    paths: ["loja/**", ".github/workflows/loja.yml"]
+  workflow_dispatch:
+    inputs:
+      importar_de:
+        description: "Endereço do JSON de migração do Floot (só na primeira vez)"
+        required: false
+        default: ""
+
+concurrency:
+  group: loja
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: loja
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Conferir os segredos
+        run: |
+          falta=""
+          [ -z "$CLOUDFLARE_API_TOKEN" ] && falta="$falta CLOUDFLARE_API_TOKEN"
+          [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && falta="$falta CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$falta" ]; then echo "::error::Faltam os segredos:$falta"; exit 1; fi
+
+      - name: Importar do Floot (fotos e produtos)
+        env:
+          IMPORTAR_DE: ${{ github.event.inputs.importar_de }}
+        run: |
+          fonte="$IMPORTAR_DE"
+          if [ -z "$fonte" ] && [ ! -f dados/semente.sql ] && [ -f dados/importar_de.txt ]; then fonte=$(tr -d ' \n' < dados/importar_de.txt); fi
+          if [ -z "$fonte" ]; then echo "nada para importar"; exit 0; fi
+          node scripts/importar.mjs "$fonte"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add publico/_cdn publico/floot-push-sw.js dados/semente.sql
+          git commit -m "Loja: fotos e produtos copiados do Floot" || echo "nada novo"
+          git push
+
+      - name: Instalar
+        run: npm install --no-audit --no-fund
+
+      - name: Montar o site
+        run: npm run build
+
+      - name: Banco D1 (cria na primeira vez)
+        run: |
+          id=$(npx wrangler d1 list --json | jq -r '.[] | select(.name=="loja") | .uuid' | head -1)
+          if [ -z "$id" ] || [ "$id" = "null" ]; then
+            npx wrangler d1 create loja
+            id=$(npx wrangler d1 list --json | jq -r '.[] | select(.name=="loja") | .uuid' | head -1)
+          fi
+          if [ -z "$id" ] || [ "$id" = "null" ]; then echo "::error::Não consegui criar ou achar o banco D1 'loja'."; exit 1; fi
+          sed -i "s/__D1_ID__/$id/" wrangler.toml
+          echo "Banco D1: $id"
+
+      - name: Atualizar as tabelas
+        run: npx wrangler d1 migrations apply loja --remote
+
+      - name: Carregar os produtos (só com o banco vazio)
+        run: |
+          n=$(npx wrangler d1 execute loja --remote --json --command "SELECT count(*) AS n FROM products" | jq -r '.[0].results[0].n')
+          echo "produtos no banco: $n"
+          if [ "$n" = "0" ] && [ -f dados/semente.sql ]; then
+            npx wrangler d1 execute loja --remote --file dados/semente.sql
+          fi
+
+      - name: Publicar
+        run: |
+          npx wrangler deploy | tee deploy.txt
+          url=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' deploy.txt | head -1)
+          echo "ENDERECO=$url" >> "$GITHUB_ENV"
+          echo "### Loja no ar" >> "$GITHUB_STEP_SUMMARY"
+          echo "Endereço: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Segredo das sessões (cria na primeira vez)
+        run: |
+          if ! npx wrangler secret list | grep -q '"JWT_SECRET"'; then
+            openssl rand -base64 48 | tr -d '\n' | npx wrangler secret put JWT_SECRET
+          fi
+
+      - name: Chaves dos serviços (vêm dos segredos do GitHub, quando existirem)
+        env:
+          MP_ACCESS_TOKEN: ${{ secrets.MP_ACCESS_TOKEN }}
+          MP_PUBLIC_KEY: ${{ secrets.MP_PUBLIC_KEY }}
+          MELHORENVIO_TOKEN: ${{ secrets.MELHORENVIO_TOKEN }}
+          MELHORENVIO_ENV: ${{ secrets.MELHORENVIO_ENV }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          FIREBASE_CONTA_SERVICO: ${{ secrets.FIREBASE_CONTA_SERVICO }}
+          INSTAGRAM_APP_SECRET: ${{ secrets.INSTAGRAM_APP_SECRET }}
+          GITHUB_TOKEN_ATUALIZACOES: ${{ secrets.GITHUB_TOKEN_ATUALIZACOES }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          node -e '
+            const nomes = "MP_ACCESS_TOKEN MP_PUBLIC_KEY MELHORENVIO_TOKEN MELHORENVIO_ENV GEMINI_API_KEY GROQ_API_KEY FIREBASE_CONTA_SERVICO INSTAGRAM_APP_SECRET GITHUB_TOKEN_ATUALIZACOES RESEND_API_KEY".split(" ");
+            const tem = Object.fromEntries(nomes.filter((n) => process.env[n]).map((n) => [n, process.env[n]]));
+            require("fs").writeFileSync("/tmp/segredos.json", JSON.stringify(tem));
+            console.log("com valor:", Object.keys(tem).join(", ") || "nenhum");
+            const faltam = nomes.filter((n) => !process.env[n]);
+            if (faltam.length) console.log("::notice::Ainda sem: " + faltam.join(", ") + " (criar em Settings → Secrets and variables → Actions e rodar de novo).");
+          '
+          if [ "$(cat /tmp/segredos.json)" != "{}" ]; then npx wrangler secret bulk /tmp/segredos.json; fi
+          rm -f /tmp/segredos.json
+
+      - name: Conferir se está no ar
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS -o /dev/null "$ENDERECO/"; then break; fi
+            echo "ainda não respondeu ($i), esperando…"; sleep 15
+          done
+          curl -sS -o /dev/null -w "página inicial: %{http_code}\n" "$ENDERECO/"
+          curl -sS "$ENDERECO/_api/catalog" | head -c 400; echo
+          curl -sS -o /dev/null -w "foto: %{http_code} %{content_type}\n" "$ENDERECO/_cdn/static/86d30161-7ae8-424f-a57b-78ebd06a5975-logo-og.jpg"

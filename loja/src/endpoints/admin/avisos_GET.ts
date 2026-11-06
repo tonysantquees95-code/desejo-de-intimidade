@@ -11,9 +11,9 @@ export async function handle(request: Request) {
     const linha = await db
       .selectFrom("appDispositivos")
       .select([
-        sql<number>`count(*)::int`.as("aparelhos"),
-        sql<number>`count(usuario_id)::int`.as("comConta"),
-        sql<number>`count(*) filter (where usuario_id = ${admin.id})::int`.as("meus"),
+        sql<number>`count(*)`.as("aparelhos"),
+        sql<number>`count(usuario_id)`.as("comConta"),
+        sql<number>`count(*) filter (where usuario_id = ${admin.id})`.as("meus"),
       ])
       .executeTakeFirst();
     return new Response(

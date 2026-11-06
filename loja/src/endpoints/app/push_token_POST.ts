@@ -32,7 +32,7 @@ export async function handle(request: Request) {
       .values({ token, usuarioId })
       .onConflict((oc) =>
         oc.column("token").doUpdateSet({
-          atualizado: sql`now()`,
+          atualizado: new Date(),
           // Sem login agora: mantém a conta que já estava ligada a este celular.
           usuarioId: usuarioId === null ? sql`app_dispositivos.usuario_id` : usuarioId,
         }),

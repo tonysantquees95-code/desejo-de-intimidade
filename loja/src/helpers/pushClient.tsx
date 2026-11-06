@@ -198,7 +198,9 @@ export async function subscribeToPush(): Promise<
     scope: "/floot-push-sdk/",
   });
   if ((await Notification.requestPermission()) !== "granted") return null;
-  const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+  // No Cloudflare a chave pública VAPID vem do servidor (gerada na primeira vez e guardada no banco).
+  const chaveVapid = await fetch("/_api/push/chave").then((r) => r.json()).then((j: { chave?: string }) => j.chave || VAPID_PUBLIC_KEY).catch(() => VAPID_PUBLIC_KEY);
+  const applicationServerKey = urlBase64ToUint8Array(chaveVapid);
   let subscription = await registration.pushManager.getSubscription();
   if (subscription) {
     const existingKey = subscription.options?.applicationServerKey;

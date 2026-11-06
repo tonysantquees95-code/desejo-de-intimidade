@@ -552,7 +552,7 @@ export async function atenderNoRobo(
     // a busca usa a mensagem e a anterior da cliente (para "e esse?", "quanto custa?")
     const anterior = [...historico].reverse().find((m) => m.de === "cliente")?.texto ?? "";
     const parecidos = await buscarParecidos(`${anterior} ${mensagem}`.trim(), 8);
-    const site = "https://desejo-de-intimidade.floot.app";
+    const site = "https://desejo-de-intimidade.tonysantquees95.workers.dev";
     const contexto = parecidos
       .filter((p) => p.nota >= 0.5)
       .map((p) => (p.item.tipo === "produto" ? `[produto | link ${site}/produto/${p.item.ref}] ${p.item.texto}` : `[regra] ${p.item.texto}`))

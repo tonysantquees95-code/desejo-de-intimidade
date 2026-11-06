@@ -36,7 +36,7 @@ export async function handle(request: Request) {
         .executeTakeFirst();
       const product = await db
         .updateTable("products")
-        .set({ ...values, updatedAt: sql`now()` })
+        .set({ ...values, updatedAt: new Date() })
         .where("id", "=", input.id)
         .returningAll()
         .executeTakeFirst();

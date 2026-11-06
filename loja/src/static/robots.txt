@@ -10,4 +10,4 @@ Disallow: /pedido/
 Disallow: /avaliar/
 Disallow: /_api/
 
-Sitemap: https://desejo-de-intimidade.floot.app/sitemap.xml
+Sitemap: https://desejo-de-intimidade.tonysantquees95.workers.dev/sitemap.xml
