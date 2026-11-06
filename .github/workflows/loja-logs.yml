@@ -1,0 +1,21 @@
+name: Loja (ver registros)
+
+# Mostra os registros do Worker da loja por alguns minutos (para investigar erros).
+on:
+  workflow_dispatch:
+    inputs:
+      segundos:
+        description: "Por quantos segundos acompanhar"
+        required: false
+        default: "150"
+
+jobs:
+  registros:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Acompanhar
+        run: |
+          timeout "${{ github.event.inputs.segundos }}" npx --yes wrangler@4 tail desejo-de-intimidade --format pretty || true
