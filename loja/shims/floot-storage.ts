@@ -4,6 +4,7 @@
  * /_api/_arquivo assinado com o JWT_SECRET (vale 15 minutos).
  */
 import { SignJWT } from "jose";
+import { SITE_URL } from "../src/helpers/siteUrl";
 
 type Pedido = { visibility: "public" | "private"; filename: string; contentType: string; sizeBytes: number };
 type Resultado =
@@ -21,7 +22,8 @@ export async function upload(p: Pedido): Promise<Resultado> {
     .sign(new TextEncoder().encode(segredo));
   return {
     ok: true,
-    presignedUrl: `/_api/_arquivo?t=${encodeURIComponent(token)}`,
+    // endereço completo: o app Vênus (Android) envia a foto direto para cá, fora do navegador
+    presignedUrl: `${SITE_URL}/_api/_arquivo?t=${encodeURIComponent(token)}`,
     headers: { "Content-Type": p.contentType },
     url: `/_cdn/up/${caminho}`,
   };
