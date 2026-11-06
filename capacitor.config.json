@@ -6,8 +6,8 @@
     "androidScheme": "https",
     "errorPath": "sem-conexao.html",
     "allowNavigation": [
-      "desejo-de-intimidade.floot.app",
-      "*.floot.app"
+      "desejo-de-intimidade.tonysantquees95.workers.dev",
+      "desejo-de-intimidade.floot.app"
     ]
   },
   "plugins": {

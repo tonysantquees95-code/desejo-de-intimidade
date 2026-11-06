@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: apk-android
@@ -90,6 +91,31 @@ jobs:
             sleep 5
           done
           test "$(gh release view teste-android --json isDraft --jq .isDraft)" = "false"
+
+      # A versão oficial também vai para a loja nova (Cloudflare): o botão "Instalar o app" e o aviso de
+      # atualização do app passam a apontar para ela.
+      - name: Publicar APK na loja
+        if: env.TIPO == 'oficial'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          nome="desejo-de-intimidade-1.0.${VERSAO_CODIGO}.apk"
+          novidades="Melhorias e correções."
+          [ -f nativo/novidades.txt ] && novidades=$(tr '\n' ' ' < nativo/novidades.txt | sed 's/"/\\"/g; s/ *$//')
+          cp desejo-de-intimidade.apk "$RUNNER_TEMP/$nome"
+          git reset -q --hard && git fetch -q origin main && git checkout -q -B atualizar origin/main
+          rm -f loja/publico/_cdn/static/desejo-de-intimidade-*.apk
+          mkdir -p loja/publico/_cdn/static
+          cp "$RUNNER_TEMP/$nome" "loja/publico/_cdn/static/$nome"
+          printf '{\n  "versao": %s,\n  "nome": "1.0.%s",\n  "url": "https://desejo-de-intimidade.tonysantquees95.workers.dev/_cdn/static/%s",\n  "novidades": "%s"\n}\n' \
+            "$VERSAO_CODIGO" "$VERSAO_CODIGO" "$nome" "$novidades" > loja/src/static/app-versao.json
+          sed -i "s#^const APK_LOJA = .*#const APK_LOJA = \"/_cdn/static/$nome\";#" loja/src/components/InstalarApp.tsx
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A loja/publico/_cdn/static loja/src/static/app-versao.json loja/src/components/InstalarApp.tsx
+          git commit -qm "Loja: app Android 1.0.${VERSAO_CODIGO} para download"
+          git push -q origin atualizar:main
+          gh workflow run loja.yml --ref main -R "$GITHUB_REPOSITORY"
 
       - uses: actions/upload-artifact@v4
         with:
