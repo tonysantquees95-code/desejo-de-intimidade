@@ -14,6 +14,14 @@ on:
         description: "Endereço do JSON de migração do Floot (só na primeira vez)"
         required: false
         default: ""
+      tornar_admin:
+        description: "E-mails (separados por vírgula) que viram administradores da loja"
+        required: false
+        default: ""
+      sql:
+        description: "Comando SQL para rodar no banco (manutenção)"
+        required: false
+        default: ""
 
 concurrency:
   group: loja
@@ -86,6 +94,18 @@ jobs:
           if [ "$n" = "0" ] && [ -f dados/semente.sql ]; then
             npx wrangler d1 execute loja --remote --file dados/semente.sql
           fi
+
+      - name: Administradores e manutenção
+        if: ${{ github.event.inputs.tornar_admin != '' || github.event.inputs.sql != '' }}
+        env:
+          ADMINS: ${{ github.event.inputs.tornar_admin }}
+          SQL_MANUAL: ${{ github.event.inputs.sql }}
+        run: |
+          if [ -n "$ADMINS" ]; then
+            lista=$(node -e 'console.log(process.env.ADMINS.split(",").map(e=>e.trim().toLowerCase()).filter(e=>/^[^@\s'"'"']+@[^@\s'"'"']+$/.test(e)).map(e=>"'"'"'"+e+"'"'"'").join(","))')
+            [ -n "$lista" ] && npx wrangler d1 execute loja --remote --command "UPDATE users SET role='admin' WHERE lower(email) IN ($lista); SELECT id, email, role FROM users WHERE lower(email) IN ($lista);"
+          fi
+          if [ -n "$SQL_MANUAL" ]; then npx wrangler d1 execute loja --remote --command "$SQL_MANUAL"; fi
 
       - name: Publicar
         run: |

@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths-ignore:
       - "loja/**"
-      - ".github/workflows/loja.yml"
+      - ".github/workflows/loja*.yml"
   workflow_dispatch:
 
 permissions:
