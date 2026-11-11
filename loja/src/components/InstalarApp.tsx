@@ -51,7 +51,7 @@ const CHAVE_FECHADO = "instalar-app-fechado";
  * Ao lançar uma versão nova: suba o APK, troque este caminho E atualize static/app-versao.json
  * (é o arquivo que faz o app instalado mostrar "Nova versão disponível").
  */
-const APK_LOJA = "/_cdn/static/desejo-de-intimidade-1.0.17.apk";
+const APK_LOJA = "/_cdn/static/desejo-de-intimidade-1.0.18.apk";
 const NOME_ARQUIVO_APK = "desejo-de-intimidade.apk";
 
 function baixarApk(url: string) {
