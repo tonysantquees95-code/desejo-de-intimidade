@@ -268,6 +268,7 @@ export async function handle(request: Request) {
       transaction_amount: totalCents / 100,
       description: `Desejo de Intimidade - pedido ${orderId}`,
       external_reference: `pedido-${orderId}`,
+      statement_descriptor: "VETORIAL TECH", // nome na fatura do cartão (o site é feito e mantido pela Vetorial Tech)
       payer: {
         email: user.email,
         first_name: firstName,

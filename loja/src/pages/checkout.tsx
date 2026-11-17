@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { CreditCard, QrCode, Store, Truck } from "lucide-react";
 import { ShopLayout } from "../components/ShopLayout";
+import { AvisoPagamento } from "../components/RodapeVetorial";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Spinner } from "../components/Spinner";
@@ -609,6 +610,7 @@ export default function CheckoutPage() {
                 Ele vale por 30 minutos.
               </p>
             )}
+            <AvisoPagamento />
           </section>
         </div>
 

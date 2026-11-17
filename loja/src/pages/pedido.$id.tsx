@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, CheckCircle2, Clock, XCircle, MessageCircle, CalendarClock } from "lucide-react";
 import { ShopLayout } from "../components/ShopLayout";
+import { AvisoPagamento } from "../components/RodapeVetorial";
 import { Button } from "../components/Button";
 import { Skeleton } from "../components/Skeleton";
 import { OrderProgress } from "../components/OrderProgress";
@@ -106,6 +107,7 @@ export default function PedidoPage() {
                       ? ` Válido até ${new Date(order.pixExpiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.`
                       : ""}
                   </p>
+                  <AvisoPagamento />
                   <code className={styles.code}>{order.pixQrText}</code>
                   <Button onClick={() => copy(order.pixQrText ?? "")}>
                     <Copy size={16} /> Copiar código Pix

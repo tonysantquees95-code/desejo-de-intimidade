@@ -7,6 +7,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "../src/base.css";
 import { GlobalContextProviders } from "../src/components/_globalContextProviders";
+import { RodapeVetorial } from "../src/components/RodapeVetorial";
 
 type Layout = React.ComponentType<{ children: React.ReactNode }>;
 
@@ -49,6 +50,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="*" element={<NaoEncontrada />} />
           </Routes>
         </Suspense>
+        <RodapeVetorial />
       </GlobalContextProviders>
     </BrowserRouter>
   </React.StrictMode>,
