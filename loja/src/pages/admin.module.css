@@ -147,7 +147,8 @@
 .rowMeta {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-2);
   font-size: 0.8125rem;
   color: var(--muted-foreground);
 }
@@ -176,4 +177,8 @@
     width: 100%;
     justify-content: flex-end;
   }
+}
+
+.rowMeta > * {
+  white-space: nowrap;
 }

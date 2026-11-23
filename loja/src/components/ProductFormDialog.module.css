@@ -1,7 +1,9 @@
 .content {
   max-width: 32rem;
   max-height: 90vh;
+  max-height: 90dvh; /* acompanha o teclado do celular */
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .form {
   display: flex;
@@ -59,4 +61,11 @@
   padding: var(--spacing-3) var(--spacing-4);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+}
+
+/* Salvar/Cancelar ficam sempre à vista no fim da janela, mesmo rolando o formulário. */
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }

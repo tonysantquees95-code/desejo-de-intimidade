@@ -360,7 +360,7 @@ export const ProductFormDialog: React.FC<ProductFormDialogProps> = ({
             <Switch checked={active} onCheckedChange={setActive} />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className={styles.footer}>
             <Button
               type="button"
               variant="outline"
