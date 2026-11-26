@@ -59,7 +59,7 @@ export default function PedidoPage() {
       "Itens:",
       itemsText,
       "",
-      `Total: ${formatCents(order.totalCents)} (${order.paymentMethod === "pix" ? "Pix" : `cartão em ${order.installments}x`})`,
+      `Total: ${formatCents(order.totalCents)} (${order.paymentMethod === "pix" ? "Pix" : order.paymentMethod === "infinitepay" ? "InfinitePay" : `cartão em ${order.installments}x`})`,
       `Entrega: ${order.deliveryMethod === "pickup" ? "retirada em ponto de retirada (a agendar)" : order.deliveryMethod === "motoboy" ? "Motoboy" : "SEDEX"}`,
       `Nome: ${order.customerName}`,
     ].join("\n");
@@ -90,35 +90,23 @@ export default function PedidoPage() {
         <Skeleton className={styles.skeleton} />
       ) : (
         <>
-          {order.status === "awaiting_payment" && order.paymentMethod === "pix" ? (
+          {order.status === "awaiting_payment" && order.paymentUrl ? (
             <section className={styles.banner}>
               <div className={styles.bannerHead}>
-                <Clock size={22} /> <strong>Aguardando o pagamento do Pix</strong>
+                <Clock size={22} /> <strong>Aguardando o pagamento</strong>
               </div>
-              {order.pixQrText ? (
-                <>
-                  <div className={styles.qr}>
-                    <QRCodeSVG value={order.pixQrText} size={208} />
-                  </div>
-                  <p className={styles.hint}>
-                    Abra o app do seu banco, escolha pagar com Pix e escaneie o
-                    QR Code, ou use o código copia e cola abaixo.
-                    {order.pixExpiresAt
-                      ? ` Válido até ${new Date(order.pixExpiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.`
-                      : ""}
-                  </p>
-                  <AvisoPagamento />
-                  <code className={styles.code}>{order.pixQrText}</code>
-                  <Button onClick={() => copy(order.pixQrText ?? "")}>
-                    <Copy size={16} /> Copiar código Pix
-                  </Button>
-                  <p className={styles.hint}>
-                    Esta página atualiza sozinha assim que o pagamento for confirmado.
-                  </p>
-                </>
-              ) : (
-                <p className={styles.hint}>Não foi possível exibir o QR Code. Fale conosco.</p>
-              )}
+              <p className={styles.hint}>
+                Pague na página segura da InfinitePay, com Pix (5% de desconto nos
+                produtos que não estão em promoção) ou cartão em até 3x. Se você
+                já pagou, esta página atualiza sozinha em instantes.
+                {order.pixExpiresAt
+                  ? ` O link vale até ${new Date(order.pixExpiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.`
+                  : ""}
+              </p>
+              <AvisoPagamento />
+              <a href={order.paymentUrl}>
+                <Button>Pagar agora</Button>
+              </a>
             </section>
           ) : order.status === "awaiting_payment" ? (
             <section className={styles.banner}>
@@ -126,7 +114,7 @@ export default function PedidoPage() {
                 <Clock size={22} /> <strong>Pagamento em análise</strong>
               </div>
               <p className={styles.hint}>
-                Assim que o Mercado Pago confirmar, o pedido muda para “Pago”.
+                Assim que o pagamento for confirmado, o pedido muda para “Pago”.
               </p>
             </section>
           ) : order.status === "canceled" ? (

@@ -125,6 +125,7 @@ jobs:
         env:
           MP_ACCESS_TOKEN: ${{ secrets.MP_ACCESS_TOKEN }}
           MP_PUBLIC_KEY: ${{ secrets.MP_PUBLIC_KEY }}
+          INFINITEPAY_API_KEY: ${{ secrets.INFINITEPAY_API_KEY }}
           MELHORENVIO_TOKEN: ${{ secrets.MELHORENVIO_TOKEN }}
           MELHORENVIO_ENV: ${{ secrets.MELHORENVIO_ENV }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -135,7 +136,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
           node -e '
-            const nomes = "MP_ACCESS_TOKEN MP_PUBLIC_KEY MELHORENVIO_TOKEN MELHORENVIO_ENV GEMINI_API_KEY GROQ_API_KEY FIREBASE_CONTA_SERVICO INSTAGRAM_APP_SECRET GITHUB_TOKEN_ATUALIZACOES RESEND_API_KEY".split(" ");
+            const nomes = "MP_ACCESS_TOKEN MP_PUBLIC_KEY INFINITEPAY_API_KEY MELHORENVIO_TOKEN MELHORENVIO_ENV GEMINI_API_KEY GROQ_API_KEY FIREBASE_CONTA_SERVICO INSTAGRAM_APP_SECRET GITHUB_TOKEN_ATUALIZACOES RESEND_API_KEY".split(" ");
             const tem = Object.fromEntries(nomes.filter((n) => process.env[n]).map((n) => [n, process.env[n]]));
             require("fs").writeFileSync("/tmp/segredos.json", JSON.stringify(tem));
             console.log("com valor:", Object.keys(tem).join(", ") || "nenhum");

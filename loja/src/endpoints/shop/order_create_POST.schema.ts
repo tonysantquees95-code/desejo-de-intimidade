@@ -28,20 +28,15 @@ export const schema = z.object({
   // Which Correios service the customer picked (required when deliveryMethod is "sedex")
   shippingService: z.enum(["sedex", "pac"]).nullable(),
   address: addressSchema.nullable(),
-  payment: z.discriminatedUnion("method", [
-    z.object({ method: z.literal("pix") }),
-    z.object({
-      method: z.literal("credit_card"),
-      token: z.string().min(8).max(200),
-      paymentMethodId: z.string().min(2).max(40),
-      issuerId: z.string().max(40).nullable(),
-      installments: z.number().int().min(1).max(3),
-    }),
-  ]),
 });
 
 export type InputType = z.input<typeof schema>;
-export type OutputType = { orderId: number; status: OrderStatus };
+export type OutputType = {
+  orderId: number;
+  status: OrderStatus;
+  /** Página de pagamento da InfinitePay (Pix ou cartão). */
+  paymentUrl: string;
+};
 
 export const postOrderCreate = (body: InputType) =>
   apiRequest<OutputType>("/_api/shop/order_create", {

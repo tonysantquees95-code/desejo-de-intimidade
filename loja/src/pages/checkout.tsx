@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { CreditCard, QrCode, Store, Truck } from "lucide-react";
 import { ShopLayout } from "../components/ShopLayout";
@@ -16,60 +16,9 @@ import { isPromotion, pixDiscountForLine } from "../helpers/pricing";
 import { isValidCpf } from "../helpers/isValidCpf";
 import { toast } from "../helpers/toast";
 import { getProfile } from "../endpoints/shop/profile_GET.schema";
-import { getCardKey } from "../endpoints/shop/card_key_GET.schema";
 import { postShippingQuote } from "../endpoints/shop/shipping_quote_POST.schema";
 import { postOrderCreate } from "../endpoints/shop/order_create_POST.schema";
 import styles from "./checkout.module.css";
-
-type MpFormData = {
-  token: string;
-  issuer_id?: string | number | null;
-  payment_method_id: string;
-  installments: number;
-};
-
-type MpBrickController = {
-  unmount: () => void;
-  getFormData: () => Promise<MpFormData>;
-};
-
-declare global {
-  interface Window {
-    MercadoPago?: new (
-      publicKey: string,
-      options?: { locale: string },
-    ) => {
-      bricks: () => {
-        create: (
-          brick: "cardPayment",
-          containerId: string,
-          settings: Record<string, unknown>,
-        ) => Promise<MpBrickController>;
-      };
-    };
-  }
-}
-
-const MP_SDK_URL = "https://sdk.mercadopago.com/js/v2";
-
-let mpSdkPromise: Promise<void> | null = null;
-function loadMpSdk(): Promise<void> {
-  if (window.MercadoPago) return Promise.resolve();
-  if (!mpSdkPromise) {
-    mpSdkPromise = new Promise<void>((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = MP_SDK_URL;
-      script.async = true;
-      script.onload = () => resolve();
-      script.onerror = () => {
-        mpSdkPromise = null;
-        reject(new Error("Falha ao carregar o Mercado Pago"));
-      };
-      document.body.appendChild(script);
-    });
-  }
-  return mpSdkPromise;
-}
 
 const digits = (v: string) => v.replace(/\D/g, "");
 const maskCpf = (v: string) =>
@@ -93,7 +42,6 @@ const maskCep = (v: string) => {
 export default function CheckoutPage() {
   const { authState } = useAuth();
   const cart = useCart();
-  const navigate = useNavigate();
   const catalog = useCatalog();
   const authenticated = authState.type === "authenticated";
 
@@ -116,13 +64,10 @@ export default function CheckoutPage() {
   const [delivery, setDelivery] = useState<"sedex" | "pickup" | "motoboy">("sedex");
   const [pickupAgree, setPickupAgree] = useState(false);
   const [shippingService, setShippingService] = useState<"sedex" | "pac" | null>(null);
-  const [payment, setPayment] = useState<"pix" | "credit_card">("pix");
-  const [brickReady, setBrickReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const lastCep = useRef("");
   const prefilled = useRef(false);
-  const brick = useRef<MpBrickController | null>(null);
 
   // Prefill from the saved customer profile, once.
   useEffect(() => {
@@ -212,9 +157,7 @@ export default function CheckoutPage() {
           ? selectedOption.priceCents
           : null;
   // 5% off on Pix, except promotional products (the server applies the same rule)
-  const pixDiscount =
-    payment === "pix"
-      ? items.reduce(
+  const pixDiscount = items.reduce(
           (sum, i) =>
             sum +
             (i.product
@@ -224,67 +167,11 @@ export default function CheckoutPage() {
                   isPromotion(i.product),
                 )
               : 0),
-          0,
-        )
-      : 0;
-  const total = shipping === null ? null : subtotal - pixDiscount + shipping;
-
-  // Mercado Pago card form (Card Payment Brick). Re-created when the total changes.
-  const cardKey = useQuery({
-    queryKey: ["shop", "card-key"],
-    queryFn: () => getCardKey(),
-    enabled: authenticated && payment === "credit_card",
-    staleTime: 10 * 60 * 1000,
-  });
-  const publicKey = cardKey.data?.publicKey;
-  useEffect(() => {
-    if (payment !== "credit_card" || !publicKey || total === null || total <= 0) {
-      return;
-    }
-    let cancelled = false;
-    setBrickReady(false);
-    (async () => {
-      try {
-        await loadMpSdk();
-        if (cancelled || !window.MercadoPago) return;
-        const mp = new window.MercadoPago(publicKey, { locale: "pt-BR" });
-        const controller = await mp.bricks().create(
-          "cardPayment",
-          "cardPaymentBrick_container",
-          {
-            initialization: { amount: total / 100 },
-            customization: {
-              visual: { style: { theme: "dark" }, hidePaymentButton: true },
-              paymentMethods: {
-                types: { excluded: ["debit_card"] },
-                maxInstallments: 3,
-              },
-            },
-            callbacks: {
-              onReady: () => setBrickReady(true),
-              onSubmit: async () => {},
-              onError: (error: unknown) => console.error("Brick error", error),
-            },
-          },
-        );
-        if (cancelled) {
-          controller.unmount();
-          return;
-        }
-        brick.current = controller;
-      } catch (error) {
-        console.error("Mercado Pago load error", error);
-        if (!cancelled) {
-          toast.error("Não foi possível carregar o pagamento com cartão. Use o Pix.");
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-      brick.current?.unmount();
-      brick.current = null;
-    };
-  }, [payment, publicKey, total]);
+    0,
+  );
+  // The total shown is the card price; the Pix discount is applied on the InfinitePay page.
+  const total = shipping === null ? null : subtotal + shipping;
+  const totalNoPix = total === null ? null : total - pixDiscount;
 
   if (authState.type === "loading") {
     return <AuthLoadingState title="Carregando" />;
@@ -335,40 +222,6 @@ export default function CheckoutPage() {
 
     setSubmitting(true);
     try {
-      let paymentPayload:
-        | { method: "pix" }
-        | {
-            method: "credit_card";
-            token: string;
-            paymentMethodId: string;
-            issuerId: string | null;
-            installments: number;
-          } = { method: "pix" };
-
-      if (payment === "credit_card") {
-        if (!brick.current || !brickReady) {
-          throw new Error(
-            "O formulário do cartão ainda está carregando. Aguarde um instante.",
-          );
-        }
-        let formData: MpFormData | null = null;
-        try {
-          formData = await brick.current.getFormData();
-        } catch {
-          formData = null;
-        }
-        if (!formData?.token) {
-          throw new Error("Confira os dados do cartão.");
-        }
-        paymentPayload = {
-          method: "credit_card",
-          token: formData.token,
-          paymentMethodId: formData.payment_method_id,
-          issuerId: formData.issuer_id ? String(formData.issuer_id) : null,
-          installments: Math.min(3, Math.max(1, Number(formData.installments) || 1)),
-        };
-      }
-
       const result = await postOrderCreate({
         items: cart.lines.map((l) => ({
           productId: l.productId,
@@ -389,10 +242,10 @@ export default function CheckoutPage() {
                 state,
               }
             : null,
-        payment: paymentPayload,
       });
       cart.clear();
-      navigate(`/pedido/${result.orderId}`);
+      // Pix ou cartão: o cliente paga na página segura da InfinitePay e volta para o pedido.
+      window.location.assign(result.paymentUrl);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Não foi possível finalizar o pedido.",
@@ -565,51 +418,26 @@ export default function CheckoutPage() {
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>3. Pagamento</h2>
             <div className={styles.options}>
-              <button
-                type="button"
-                className={styles.option}
-                data-selected={payment === "pix"}
-                onClick={() => setPayment("pix")}
-              >
+              <div className={styles.option} data-selected="true">
                 <QrCode size={20} />
                 <span className={styles.optionText}>
                   <strong>Pix</strong>
                   <small>Aprovação na hora · 5% de desconto</small>
                 </span>
-              </button>
-              <button
-                type="button"
-                className={styles.option}
-                data-selected={payment === "credit_card"}
-                onClick={() => setPayment("credit_card")}
-              >
+              </div>
+              <div className={styles.option} data-selected="true">
                 <CreditCard size={20} />
                 <span className={styles.optionText}>
                   <strong>Cartão de crédito</strong>
                   <small>Parcele em até 3x</small>
                 </span>
-              </button>
-            </div>
-
-            {payment === "credit_card" ? (
-              <div>
-                {cardKey.isError ? (
-                  <p className={styles.error}>
-                    Pagamento com cartão indisponível no momento. Use o Pix.
-                  </p>
-                ) : !brickReady ? (
-                  <p className={styles.note}>
-                    <Spinner size="sm" /> Carregando formulário do cartão...
-                  </p>
-                ) : null}
-                <div id="cardPaymentBrick_container" />
               </div>
-            ) : (
-              <p className={styles.note}>
-                Ao finalizar, mostramos o QR Code e o código Pix copia e cola.
-                Ele vale por 30 minutos.
-              </p>
-            )}
+            </div>
+            <p className={styles.note}>
+              Ao finalizar, você vai para a página segura da InfinitePay e escolhe lá
+              se paga no Pix (com 5% de desconto, menos nos produtos em promoção) ou
+              no cartão.
+            </p>
             <AvisoPagamento />
           </section>
         </div>
@@ -634,12 +462,6 @@ export default function CheckoutPage() {
             <span>Subtotal</span>
             <span>{formatCents(subtotal)}</span>
           </div>
-          {pixDiscount > 0 ? (
-            <div className={styles.line}>
-              <span>Desconto Pix (5%)</span>
-              <span>-{formatCents(pixDiscount)}</span>
-            </div>
-          ) : null}
           <div className={styles.line}>
             <span>Frete</span>
             <span>
@@ -654,6 +476,12 @@ export default function CheckoutPage() {
             <span>Total</span>
             <span>{total === null ? "—" : formatCents(total)}</span>
           </div>
+          {pixDiscount > 0 && totalNoPix !== null ? (
+            <div className={styles.line}>
+              <span>No Pix (−{formatCents(pixDiscount)})</span>
+              <span>{formatCents(totalNoPix)}</span>
+            </div>
+          ) : null}
           <Button
             type="submit"
             size="lg"
@@ -664,14 +492,12 @@ export default function CheckoutPage() {
               <>
                 <Spinner size="sm" /> Processando...
               </>
-            ) : payment === "pix" ? (
-              "Gerar Pix"
             ) : (
-              "Pagar com cartão"
+              "Ir para o pagamento"
             )}
           </Button>
           <p className={styles.secure}>
-            Pagamento processado com segurança pelo Mercado Pago. Os dados do
+            Pagamento processado com segurança pela InfinitePay. Os dados do
             cartão não passam pelo nosso servidor.
           </p>
           <Link to="/carrinho" className={styles.back}>

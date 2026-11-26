@@ -30,6 +30,10 @@ export type OrderDto = {
   customerPhone: string;
   shippingAddress: Address | null;
   pixQrText: string | null;
+  /** Link da página de pagamento da InfinitePay (pedido ainda não pago) */
+  paymentUrl: string | null;
+  /** Desconto que o Pix dá neste pedido (só é cobrado se o cliente pagar no Pix) */
+  pixDiscountCents: number;
   pixExpiresAt: Date | null;
   trackingCode: string | null;
   shippingService: string | null;

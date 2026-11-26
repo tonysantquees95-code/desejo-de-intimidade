@@ -25,7 +25,7 @@ export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
 export type OrderStatus = "awaiting_payment" | "canceled" | "delivered" | "paid" | "preparing" | "shipped";
 
-export type PaymentMethod = "credit_card" | "pix";
+export type PaymentMethod = "credit_card" | "pix" | "infinitepay";
 
 export type ProductCategory = "acessorios_bdsm" | "excitantes_retardantes" | "fantasias_lingerie" | "geis_lubrificantes" | "kits_casais" | "masturbadores" | "vibradores";
 
@@ -103,6 +103,8 @@ export interface Orders {
   paidAt: Timestamp | null;
   paymentMethod: PaymentMethod;
   paymentProviderId: string | null;
+  paymentUrl: string | null;
+  pixDiscountCents: Generated<number>;
   pixExpiresAt: Timestamp | null;
   pixQrImageUrl: string | null;
   pixQrText: string | null;

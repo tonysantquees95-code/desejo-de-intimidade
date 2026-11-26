@@ -3,12 +3,12 @@ import styles from "./RodapeVetorial.module.css";
 
 /** Texto que explica quem processa o pagamento: usado no rodapé e na hora de pagar, para ninguém estranhar o nome. */
 export const AVISO_PAGAMENTO =
-  "O pagamento é processado pela Vetorial Tech, empresa que criou e mantém este site. " +
-  "No Pix ou no cartão, o nome que aparece pode ser Vetorial Tech. A compra é da Desejo de Intimidade, com entrega discreta.";
+  "O pagamento é feito na página segura da InfinitePay, e o dinheiro vai direto para a Desejo de Intimidade. " +
+  "Os dados do cartão não passam pelo nosso servidor. A compra é da Desejo de Intimidade, com entrega discreta.";
 
 export const AvisoPagamento = ({ className }: { className?: string }) => (
   <p className={`${styles.aviso} ${className ?? ""}`} role="note">
-    <strong>Pagamento seguro pela Vetorial Tech.</strong> {AVISO_PAGAMENTO}
+    <strong>Pagamento seguro pela InfinitePay.</strong> {AVISO_PAGAMENTO}
   </p>
 );
 
@@ -19,7 +19,7 @@ export const RodapeVetorial = () => {
   return (
     <footer className={styles.rodape}>
       <span>Site feito pela <strong>Vetorial Tech</strong></span>
-      <span className={styles.nota}>Os pagamentos desta loja são processados pela Vetorial Tech.</span>
+      <span className={styles.nota}>Pagamentos processados com segurança pela InfinitePay.</span>
     </footer>
   );
 };

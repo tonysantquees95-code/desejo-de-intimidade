@@ -291,7 +291,7 @@ export default function TrocasPage() {
         <h2>6. Como o dinheiro volta</h2>
         <ul>
           <li>
-            <strong>Cartão de crédito:</strong> pedimos o estorno ao Mercado Pago. O valor aparece na fatura em até 2 faturas, conforme o
+            <strong>Cartão de crédito:</strong> pedimos o estorno à InfinitePay. O valor aparece na fatura em até 2 faturas, conforme o
             banco.
           </li>
           <li>

@@ -27,7 +27,7 @@ export async function handle(request: Request) {
 
     const order = await db
       .selectFrom("orders")
-      .select(["id", "status", "paymentProviderId", "melhorEnvioId", "trackingCode"])
+      .select(["id", "status", "paymentProviderId", "paymentUrl", "melhorEnvioId", "trackingCode"])
       .where("id", "=", orderId)
       .executeTakeFirst();
     if (!order) {
@@ -46,7 +46,9 @@ export async function handle(request: Request) {
 
     // 1) Refund the customer first. If this fails, nothing else changes.
     let refunded = false;
-    if (order.paymentProviderId) {
+    // Pedidos da InfinitePay não têm estorno por API: o estorno é feito no app da InfinitePay.
+    const manualRefund = !order.paymentProviderId && order.paymentUrl !== null;
+    if (order.paymentProviderId && !manualRefund) {
       try {
         await mercadoPagoClient.refundPayment(
           order.paymentProviderId,
@@ -74,7 +76,7 @@ export async function handle(request: Request) {
       .where("id", "=", order.id)
       .execute();
     await releaseOrderStock(order.id);
-    await anotarAjuste(request, "pedido", `Pedido #${order.id} cancelado${refunded ? " e estornado no Mercado Pago" : ""}`);
+    await anotarAjuste(request, "pedido", `Pedido #${order.id} cancelado${refunded ? " e estornado no Mercado Pago" : manualRefund ? " (estorno a fazer no app da InfinitePay)" : ""}`);
 
     // 3) Best effort: take the unpaid shipment out of the Melhor Envio cart
     let shipmentRemoved: boolean | null = null;
@@ -95,7 +97,7 @@ export async function handle(request: Request) {
     }
 
     return new Response(
-      superjson.stringify({ ok: true, refunded, shipmentRemoved } satisfies OutputType),
+      superjson.stringify({ ok: true, refunded, manualRefund, shipmentRemoved } satisfies OutputType),
     );
   } catch (error) {
     const authResponse = authErrorResponse(error, superjson.stringify);

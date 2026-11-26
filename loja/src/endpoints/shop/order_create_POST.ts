@@ -7,16 +7,15 @@ import { loadShippingConfig } from "../../helpers/loadShippingConfig";
 import { calculateShipping } from "../../helpers/calculateShipping";
 import { loadQuoteLines, quoteShipping } from "../../helpers/quoteShipping";
 import { quoteMotoboy } from "../../helpers/motoboy";
-import { createMelhorEnvioShipment } from "../../helpers/createMelhorEnvioShipment";
 import { isPromotion, pixDiscountForLine } from "../../helpers/pricing";
 import { LOW_STOCK_THRESHOLD } from "../../helpers/stock";
 import { releaseOrderStock } from "../../helpers/releaseOrderStock";
 import { notifyStockAlerts, type StockAlert } from "../../helpers/notifyStockAlerts";
 import {
-  mercadoPagoClient,
-  MercadoPagoError,
-  type MpPayment,
-} from "../../helpers/mercadoPagoClient";
+  infinitePayClient,
+  InfinitePayError,
+  infiniteApiKey,
+} from "../../helpers/infinitePayClient";
 import { schema, type OutputType } from "./order_create_POST.schema";
 
 class UserFacingError extends Error {
@@ -27,25 +26,8 @@ class UserFacingError extends Error {
   }
 }
 
-const rejectionMessages: Record<string, string> = {
-  cc_rejected_insufficient_amount: "Saldo insuficiente no cartão.",
-  cc_rejected_bad_filled_card_number: "Confira o número do cartão.",
-  cc_rejected_bad_filled_date: "Confira a validade do cartão.",
-  cc_rejected_bad_filled_security_code: "Confira o código de segurança (CVV).",
-  cc_rejected_bad_filled_other: "Confira os dados do cartão.",
-  cc_rejected_call_for_authorize: "Seu banco precisa autorizar este pagamento. Fale com ele ou use o Pix.",
-  cc_rejected_card_disabled: "Cartão desabilitado. Use outro cartão ou o Pix.",
-  cc_rejected_high_risk: "Pagamento não aprovado por segurança. Tente o Pix.",
-};
-
-function pixExpiration(minutes: number) {
-  const expires = new Date(Date.now() + minutes * 60 * 1000);
-  // Mercado Pago wants the offset-qualified local time (Brasília, UTC-03:00)
-  const local = new Date(expires.getTime() - 3 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 19);
-  return { date: expires, text: `${local}.000-03:00` };
-}
+/** Quanto tempo o link de pagamento fica aberto (depois disso o pedido é cancelado e o estoque volta). */
+const LINK_MINUTES = 120;
 
 export async function handle(request: Request) {
   let orderId: number | null = null;
@@ -148,19 +130,19 @@ export async function handle(request: Request) {
       calculateShipping(config, "pickup", null);
     }
     // 5% off when paying by Pix, except on products already on promotion.
-    // Computed here, on the server: the browser's number is never trusted.
-    const discountCents =
-      input.payment.method === "pix"
-        ? lines.reduce(
-            (sum, l) =>
-              sum + pixDiscountForLine(l.unitPriceCents, l.quantity, l.isPromo),
-            0,
-          )
-        : 0;
-    const totalCents = subtotalCents - discountCents + shippingCents;
+    // Computed here, on the server. It is only charged if the customer pays by Pix
+    // (InfinitePay applies it on its page; see "options.discounts" below).
+    // Without the InfinitePay API key the link cannot carry the Pix discount, so none is promised.
+    const pixDiscountCents = infiniteApiKey()
+      ? lines.reduce(
+          (sum, l) => sum + pixDiscountForLine(l.unitPriceCents, l.quantity, l.isPromo),
+          0,
+        )
+      : 0;
+    const discountCents = 0;
+    const totalCents = subtotalCents + shippingCents;
 
-    const installments =
-      input.payment.method === "credit_card" ? input.payment.installments : 1;
+    const installments = 1;
     const cpf = input.customer.cpf.replace(/\D/g, "");
     const address = input.deliveryMethod !== "pickup" ? input.address : null;
 
@@ -181,11 +163,12 @@ export async function handle(request: Request) {
         .insertInto("orders")
         .values({
           userId: user.id,
-          paymentMethod: input.payment.method,
+          paymentMethod: "infinitepay",
           deliveryMethod: input.deliveryMethod,
           subtotalCents,
           shippingCents,
           discountCents,
+          pixDiscountCents,
           shippingService,
           shippingDays,
           totalCents,
@@ -257,64 +240,48 @@ export async function handle(request: Request) {
       return order.id;
     });
 
-    // 2) Create the payment at Mercado Pago
+    // 2) Create the InfinitePay payment link (the customer pays on InfinitePay's secure page)
     const host =
       request.headers.get("x-forwarded-host") ?? request.headers.get("host");
     const proto = request.headers.get("x-forwarded-proto") ?? "https";
-    const [firstName, ...rest] = input.customer.name.split(/\s+/);
-    const lastName = rest.join(" ") || firstName;
+    const origin = host ? `${proto}://${host}` : null;
 
-    const body: Record<string, unknown> = {
-      transaction_amount: totalCents / 100,
-      description: `Desejo de Intimidade - pedido ${orderId}`,
-      external_reference: `pedido-${orderId}`,
-      statement_descriptor: "VETORIAL TECH", // nome na fatura do cartão (o site é feito e mantido pela Vetorial Tech)
-      payer: {
-        email: user.email,
-        first_name: firstName,
-        last_name: lastName,
-        identification: { type: "CPF", number: cpf },
-      },
-      additional_info: {
-        items: lines.map((l) => ({
-          id: String(l.productId),
-          title: l.name.slice(0, 250),
-          quantity: l.quantity,
-          unit_price: l.unitPriceCents / 100,
-        })),
-        payer: {
-          first_name: firstName,
-          last_name: lastName,
-          phone: {
-            area_code: input.customer.phone.slice(0, 2),
-            number: input.customer.phone.slice(2),
-          },
-        },
-      },
-      ...(host
-        ? { notification_url: `${proto}://${host}/_api/shop/mp_webhook` }
-        : {}),
-    };
-
-    let pixExpiresAt: Date | null = null;
-    if (input.payment.method === "pix") {
-      const expiration = pixExpiration(30);
-      pixExpiresAt = expiration.date;
-      body.payment_method_id = "pix";
-      body.date_of_expiration = expiration.text;
-    } else {
-      body.token = input.payment.token;
-      body.installments = installments;
-      body.payment_method_id = input.payment.paymentMethodId;
-      const issuer = Number(input.payment.issuerId);
-      if (input.payment.issuerId && Number.isFinite(issuer)) {
-        body.issuer_id = issuer;
-      }
+    // One line per product (total of the line already includes quantity), plus the shipping.
+    const linkItems = lines.map((l) => ({
+      quantity: 1,
+      price: l.unitPriceCents * l.quantity,
+      description: (l.quantity > 1 ? `${l.quantity}x ` : "") + l.name.slice(0, 100),
+    }));
+    if (shippingCents > 0) {
+      linkItems.push({ quantity: 1, price: shippingCents, description: "Frete" });
     }
+    // The percentage InfinitePay applies on Pix, so that promo products stay without discount.
+    const pixPercent =
+      pixDiscountCents > 0
+        ? Math.round((pixDiscountCents / totalCents) * 100 * 10000) / 10000
+        : 0;
+    const expiresAt = new Date(Date.now() + LINK_MINUTES * 60 * 1000);
+    const phoneDigits = input.customer.phone;
 
-    let payment: MpPayment;
+    let paymentUrl: string;
     try {
-      payment = await mercadoPagoClient.createPayment(body, `pedido-${orderId}`);
+      paymentUrl = await infinitePayClient.createLink({
+        orderNsu: `pedido-${orderId}`,
+        items: linkItems,
+        redirectUrl: origin ? `${origin}/pedido/${orderId}` : undefined,
+        webhookUrl: origin ? `${origin}/_api/shop/infinitepay_webhook` : undefined,
+        customer: {
+          name: input.customer.name,
+          email: user.email,
+          phone_number: `+55${phoneDigits}`,
+        },
+        options: {
+          assured_installments: 3,
+          single_payment: true,
+          valid_until: expiresAt.toISOString().replace(/\.\d{3}Z$/, "Z"),
+          ...(pixPercent > 0 ? { discounts: { pix: pixPercent } } : {}),
+        },
+      });
     } catch (error) {
       await db
         .updateTable("orders")
@@ -322,61 +289,35 @@ export async function handle(request: Request) {
         .where("id", "=", orderId)
         .execute();
       await releaseOrderStock(orderId);
-      if (error instanceof MercadoPagoError) {
-        console.error("Mercado Pago rejeitou o pagamento", error.status, JSON.stringify(error.details));
-        throw new UserFacingError(
-          input.payment.method === "credit_card"
-            ? "O pagamento não foi aprovado. Confira os dados do cartão ou use o Pix."
-            : "Não foi possível gerar o Pix agora. Tente novamente em instantes.",
-          502,
-        );
+      if (error instanceof InfinitePayError) {
+        console.error("InfinitePay não criou o link", error.status, JSON.stringify(error.details));
+      } else {
+        console.error("InfinitePay link error", error);
       }
-      throw error;
+      throw new UserFacingError(
+        "Não foi possível abrir o pagamento agora. Tente novamente em instantes.",
+        502,
+      );
     }
 
-    // 3) Store what Mercado Pago answered
-    let status: OutputType["status"] = "awaiting_payment";
-    if (payment.status === "approved") {
-      status = "paid";
-    } else if (payment.status === "rejected" || payment.status === "cancelled") {
-      status = "canceled";
-    }
-
+    // 3) Remember the link (the order stays "awaiting_payment" until InfinitePay confirms)
     await db
       .updateTable("orders")
       .set({
-        status,
-        paymentProviderId: String(payment.id),
-        pixQrText: payment.point_of_interaction?.transaction_data?.qr_code ?? null,
-        pixExpiresAt,
-        paidAt: status === "paid" ? new Date() : null,
+        status: "awaiting_payment",
+        paymentUrl,
+        pixExpiresAt: expiresAt,
         updatedAt: new Date(),
       })
       .where("id", "=", orderId)
       .execute();
-
-    if (status === "paid") {
-      await createMelhorEnvioShipment(orderId);
-    }
-
-    if (status === "canceled") {
-      await releaseOrderStock(orderId);
-    } else {
-      await notifyStockAlerts(stockAlerts).catch((e) =>
-        console.error("stock alert error", e),
-      );
-    }
-
-    if (status === "canceled") {
-      throw new UserFacingError(
-        (payment.status_detail && rejectionMessages[payment.status_detail]) ||
-          "O pagamento foi recusado. Confira os dados do cartão ou use o Pix.",
-        402,
-      );
-    }
+    await notifyStockAlerts(stockAlerts).catch((e) =>
+      console.error("stock alert error", e),
+    );
+    const status: OutputType["status"] = "awaiting_payment";
 
     return new Response(
-      superjson.stringify({ orderId, status } satisfies OutputType),
+      superjson.stringify({ orderId, status, paymentUrl } satisfies OutputType),
     );
   } catch (error) {
     const authResponse = authErrorResponse(error, superjson.stringify);

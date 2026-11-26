@@ -7,6 +7,8 @@ export type InputType = z.infer<typeof schema>;
 export type OutputType = {
   ok: true;
   refunded: boolean;
+  /** true = pedido da InfinitePay: o estorno é feito por você no app da InfinitePay */
+  manualRefund: boolean;
   /** true = removed from Melhor Envio, false = could not, null = nothing to remove */
   shipmentRemoved: boolean | null;
 };

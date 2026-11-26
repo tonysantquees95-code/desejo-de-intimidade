@@ -25,6 +25,8 @@ export async function loadOrders(filter: {
       "orders.customerPhone",
       "orders.shippingAddress",
       "orders.pixQrText",
+      "orders.paymentUrl",
+      "orders.pixDiscountCents",
       "orders.pixExpiresAt",
       "orders.trackingCode",
       "orders.shippingService",

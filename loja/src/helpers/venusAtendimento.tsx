@@ -152,7 +152,7 @@ export async function venusAtendimento(
     return resposta(
       `Você pode pagar com Pix, com ${PIX_DISCOUNT_PERCENT}% de desconto nos produtos que não estão em promoção, ` +
         `ou com cartão de crédito em até ${MAX_INSTALLMENTS}x, com parcela mínima de ${formatCents(MIN_INSTALLMENT_CENTS)}. ` +
-        `O pagamento é seguro, pelo Mercado Pago.${boleto}`,
+        `O pagamento é seguro, pela InfinitePay.${boleto}`,
     );
   }
 
@@ -169,7 +169,7 @@ export async function venusAtendimento(
   }
   if (/\b(seguro|confiavel|golpe|e confiavel|e seguro|meus dados)\b/.test(t)) {
     return resposta(
-      "Pode comprar tranquila(o): o pagamento é processado pelo Mercado Pago, e seus dados são usados somente para a entrega, nunca compartilhados. " +
+      "Pode comprar tranquila(o): o pagamento é processado pela InfinitePay, e seus dados são usados somente para a entrega, nunca compartilhados. " +
         "A embalagem é neutra e o remetente não revela o tipo de produto.",
     );
   }

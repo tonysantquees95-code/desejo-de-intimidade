@@ -109,7 +109,7 @@ function regrasPadrao(): Documento[] {
     {
       tipo: "regra",
       ref: "pagamento",
-      texto: `Pagamento: Pix com ${PIX_DISCOUNT_PERCENT}% de desconto nos produtos fora de promoção, ou cartão de crédito em até ${MAX_INSTALLMENTS}x com parcela mínima de ${formatCents(MIN_INSTALLMENT_CENTS)}, pelo Mercado Pago. Não aceita boleto.`,
+      texto: `Pagamento: Pix com ${PIX_DISCOUNT_PERCENT}% de desconto nos produtos fora de promoção, ou cartão de crédito em até ${MAX_INSTALLMENTS}x com parcela mínima de ${formatCents(MIN_INSTALLMENT_CENTS)}, pela InfinitePay. Não aceita boleto.`,
     },
     {
       tipo: "regra",
@@ -130,7 +130,7 @@ function regrasPadrao(): Documento[] {
     {
       tipo: "regra",
       ref: "seguranca",
-      texto: "Segurança: pagamento processado pelo Mercado Pago; os dados da cliente são usados só para a entrega e nunca compartilhados.",
+      texto: "Segurança: pagamento processado pela InfinitePay; os dados da cliente são usados só para a entrega e nunca compartilhados.",
     },
   ];
 }

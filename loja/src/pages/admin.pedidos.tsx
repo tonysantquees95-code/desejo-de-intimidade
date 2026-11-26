@@ -95,7 +95,9 @@ function OrderRow({ order }: { order: OrderDto }) {
       toast(
         result.refunded
           ? "Pedido cancelado e valor estornado ao cliente"
-          : "Pedido cancelado",
+          : result.manualRefund
+            ? "Pedido cancelado. Faça o estorno no app da InfinitePay."
+            : "Pedido cancelado",
       );
       if (result.shipmentRemoved === false) {
         toast.error("Remova o envio manualmente no carrinho do Melhor Envio.");
@@ -140,7 +142,7 @@ function OrderRow({ order }: { order: OrderDto }) {
         ))}
       </ul>
       <p className={local.meta}>
-        {order.paymentMethod === "pix" ? "Pix" : `Cartão em ${order.installments}x`} ·{" "}
+        {order.paymentMethod === "pix" ? "Pix" : order.paymentMethod === "infinitepay" ? "InfinitePay (aguardando)" : `Cartão em ${order.installments}x`} ·{" "}
         {order.deliveryMethod === "pickup"
           ? "Retirada em ponto de retirada (agendar pelo WhatsApp)"
           : address
@@ -205,9 +207,10 @@ function OrderRow({ order }: { order: OrderDto }) {
               <DialogHeader>
                 <DialogTitle>Cancelar e estornar o pedido #{order.id}?</DialogTitle>
                 <DialogDescription>
-                  O Mercado Pago devolve {formatCents(order.totalCents)} ao
-                  cliente e o pedido fica como cancelado. Isso não pode ser
-                  desfeito. O valor sai do saldo da sua conta do Mercado Pago.
+                  O pedido fica como cancelado e o estoque volta. Isso não pode
+                  ser desfeito. Se o pedido foi pago pela InfinitePay, o estorno
+                  de {formatCents(order.totalCents)} ao cliente você faz no app
+                  da InfinitePay (a loja não consegue estornar sozinha).
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>

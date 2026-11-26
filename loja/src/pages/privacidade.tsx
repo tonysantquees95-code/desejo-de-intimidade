@@ -29,8 +29,8 @@ export default function PrivacidadePage() {
             legais e fiscais.
           </li>
           <li>
-            <strong>Pagamento:</strong> processado pelo Mercado Pago. Os dados do cartão vão direto para o Mercado
-            Pago (que transforma o cartão num código seguro) e nunca ficam guardados conosco.
+            <strong>Pagamento:</strong> processado pela InfinitePay. Você digita os dados do cartão na página da
+            InfinitePay, e eles nunca passam pelo nosso servidor nem ficam guardados conosco.
           </li>
           <li>
             <strong>Atendimento:</strong> as mensagens que você manda pelo site, WhatsApp ou Direct do Instagram, para responder suas
@@ -45,7 +45,7 @@ export default function PrivacidadePage() {
         <h2>3. Com quem os dados são compartilhados</h2>
         <p>Só com quem precisa deles para a loja funcionar:</p>
         <ul>
-          <li>Mercado Pago (pagamentos);</li>
+          <li>InfinitePay (pagamentos);</li>
           <li>Melhor Envio e Correios, ou o entregador por motoboy em Porto Alegre (entregas);</li>
           <li>Floot (hospedagem do site e do banco de dados);</li>
           <li>Meta (WhatsApp e Instagram), quando você fala com a loja por esses canais;</li>
